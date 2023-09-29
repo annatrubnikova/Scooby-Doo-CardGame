@@ -1,0 +1,110 @@
+.signForm, .loginInput {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0 auto;
+}
+
+.loginInput {
+    float: left;
+    font-size: 20px;
+    margin-top: 24px;
+}
+
+.loginInput input {
+    line-height: 32px;
+    font-size: 16px;
+    margin-top: 8px;
+    outline: none;
+    padding-left: 7px;
+    border: 1px solid #cb9dff;
+    border-radius: 1rem;
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    color: #a257f8;
+}
+
+.loginInput input::placeholder{
+    color: #a257f8;
+    opacity: 0.5;
+    font-size: 14px;
+}
+
+.loginInput input:hover{
+    border-color: #a257f8;
+}
+
+.loginInput input:focus{
+    border-color: #5000ab;
+    color: #5000ab;
+}
+
+.loginInput input:focus::placeholder {
+    opacity: 0;
+}
+
+.loginInput span {
+    font-size: 16px;
+}
+
+.loginInput i {
+    font-size: 16px;
+    color: #cb9dff;
+    border: 1px solid #cb9dff;
+    border-radius: 1rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    background-color: white;
+    padding: 9px 0 9px 20px;
+    margin-right: -6px;
+}
+
+.loginInput div:hover i {
+    border-color: #a257f8;
+    color: #a257f8;
+    cursor: text;
+}
+
+.loginInput div:hover input {
+    border-color: #a257f8;
+    color: #a257f8;
+}
+
+.signUpForm .loginInput {
+    margin-top: 16px;
+}
+
+.signUpBtn {
+    margin-top: 20px;
+}
+
+.signInBtn, .signUpBtn {
+    cursor: pointer;
+}
+
+.signUpForm {
+    width: 550px;
+}
+
+.signUpForm .column {
+    display: flex;
+    justify-content: space-between;
+}
+
+.emailInput div input{
+    width: 470px;
+}
+
+.signInLabel {
+    font-size: 14px;
+}
+
+.signInLink {
+    color: #a257f8;
+}
+
+.signMessage {
+    text-align: center;
+}

@@ -1,0 +1,6 @@
+{
+    "host":"localhost",
+    "user": "atrubnikov",
+    "password": "securepass",
+    "data_base": "cardgame"
+}
