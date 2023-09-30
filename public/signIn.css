@@ -103,6 +103,7 @@
 
 .signInLink {
     color: #a257f8;
+    cursor: pointer;
 }
 
 .signMessage {

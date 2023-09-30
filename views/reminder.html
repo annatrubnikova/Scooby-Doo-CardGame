@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Password reminder</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+<div class="home-class">
+  <div><h1>Password reminder</h1></div>
+  <div class="home-menu">
+    <ul>
+      <li onclick="window.location.assign('/signIn')">sign In</li>
+      <li onclick="window.location.assign('/signUp')">sign Up</li>
+    </ul>
+  </div>
+</div>
+  <div class="container">
+    <div class="box">
+      <form action="/reminder" method="post">
+        #message#
+        <div class="form-group">
+          <label for="email">email: </label>
+          <input type="email" name="email" id="email" placeholder="Input email" required>
+        </div>
+        <div class="submitBtn">
+          <button type="submit">Send</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+  <footer>
+    <p>© Duderick and DarunKa company limited.AM</p>
+</footer>
+</body>
+
+</html>

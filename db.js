@@ -4,10 +4,16 @@ const crypt = require('bcryptjs');
 const nodemailer = require("nodemailer");
 const shortid = require("shortid");
 
-function render(file, insert) {
+function render(file, insert = false) {
     try {
-        const eror = fs.readFileSync(__dirname + `/views/${file}.html`, 'utf-8');
-        return eror.replace("#TEXT#", insert || '');
+        let eror = fs.readFileSync(__dirname + `/views/${file}.html`, 'utf-8');
+        if (insert !== false) {
+          Object.entries(insert).map(obj => {
+            const [key, value] = obj;
+            eror = eror.replace(`#${key}#`, value ? `<span title="${value}" class="${key}Text">${value}</span>` : '');
+          });
+        }
+        return eror;
     } catch (err) {
         console.error(err);
     }
@@ -32,7 +38,7 @@ async function validate(check) {
     return { status: emailResult.length === 0 && loginResult.length === 0, error };
 }
 
-/*async function sendEmail(email, pass) {
+async function sendEmail(email, pass) {
     let testAccount = await nodemailer.createTestAccount();
     let transporter = nodemailer.createTransport({
         host: "smtp.ethereal.email",
@@ -53,15 +59,13 @@ async function validate(check) {
 
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-}*/
+}
 
 exports.addUser = async function (req, res){
     let valid = await validate(req.body);
     if(!valid.status) {
-        console.log("IN IT here");
-        res.send(render('signUp', `<div class='error-box'>Error!!! ${valid.error}</div>`));
+        res.send(render('signUp', `Error!!! ${valid.error}`));  fix
     } else {
-        console.log("IN IT");
         const user = new User();
         const hashedPass = await crypt.hash(req.body.password, 8);
         await user.save({
@@ -94,7 +98,7 @@ exports.login = async function(request, response) {
           sess.user = result[0];
           response.redirect('/home');
         } else {
-          response.send(render('signIn', '<div class="error-box">Wrong password or login!</div>'));
+          response.send(render('signIn', {error: 'Wrong password or login!'}));
         }
       } else {
         response.redirect('/home');
@@ -107,11 +111,10 @@ exports.register = function(request, response) {
 };
 
 exports.home = function(request, response) {
-    console.log(request.session.user);
     if(!request.session.user) {
         response.redirect('/signIn');
     } else {
-        response.send(render("home", `Your type of status: ${request.session.user.status}</br>`));
+      response.send(render("home", {login: request.session.user.login, fullname: request.session.user.full_name, email: request.session.user.email}));
     }
 };
 
@@ -136,7 +139,7 @@ exports.logout = async function(request, response) {
     });
 };
 
-/*exports.reminder = async function(request, response) {
+exports.reminder = async function(request, response) {
     if (request.method === 'GET') {
       response.send(render('reminder'));
     } else {
@@ -154,12 +157,48 @@ exports.logout = async function(request, response) {
         });
   
         sendEmail(result[0].email, random);
-        message = "<div class='success-box'>Your password was sent to your email</div>";
+        message = "Your password was sent to your email";
       } else {
-        message = "<div class='error-box'>This e-mail doesn't exist as a user.</div>";
+        message = "This e-mail doesn't exist as a user.";
       }
   
-      response.send(render('reminder', message ));
+      response.send(render('reminder', {message: message} ));
     }
-};*/
+};
   
+exports.settings = async function(request, response) {
+  if(!request.session.user) {
+    response.redirect('/signIn');
+  }
+  else {
+    if (request.method === 'GET') {
+      response.send(render('settings', {login: request.session.user.login, fullname: request.session.user.full_name, email: request.session.user.email}));
+    }
+    else {
+      const user = new User();
+      if(request.body.fullname) {
+        console.log("changed");
+        await user.save({
+          id: request.session.user.id ,
+          full_name: request.body.fullname
+        });
+      }
+      if(request.body.email) {
+        await user.save({
+          id: request.session.user.id ,
+          email: request.body.email
+        });
+      }
+      if(request.body.password) {
+        const hashedPass = await crypt.hash(request.body.password, 8);
+        await user.save({
+          id: request.session.user.id,
+          password: hashedPass
+        });
+      }
+      const result = await user.getList({ login: request.session.user.login });
+      request.session.user = result[0];
+      response.send(render('settings', {status: 'Settings have changed.', login: request.session.user.login, fullname: request.session.user.full_name, email: request.session.user.email} ));
+    }
+  } 
+}

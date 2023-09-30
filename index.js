@@ -13,14 +13,15 @@ app.use(express.static('public'));
 app.use(express.static('images'));
 app.use('/', express.static('views'));
 
-userRouter.post("/create", db.addUser);
-userRouter.post("/validate", db.addUser);
-userRouter.use("/home", db.home);
-app.use("/user", userRouter);
+app.post("/create", db.addUser);
+app.post("/validate", db.addUser);
+app.use("/home", db.home);
+app.use("/settings", db.settings);
+//app.use("/user", userRouter);
 //app.use("/done", db.done);
 app.get("/logout", db.logout);
 app.get("/signUp", db.register);
-//app.use("/reminder", db.reminder);
+app.use("/reminder", db.reminder);
 app.use("/signIn", db.login);
 app.use("/", db.index);
 
