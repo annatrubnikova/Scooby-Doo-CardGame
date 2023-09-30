@@ -30,14 +30,17 @@
         </div>
     </div>
     <div class="mainSection menuSection">
-        <h4>The Name Game</h4>
+        <h4 onclick="window.location.assign('/home')">The Name Game</h4>
         <div class="home-menu">
-            <button onclick="window.location.assign('/stats')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
+            <button onclick="window.location.assign('/home')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
             <button onclick="window.location.assign('/settings')" type="submit" class="settingBtn"><i class="fa-solid fa-gear"></i></button>
             <u onclick="showUserInfo()">#avatar2#</u>
         </div>
     </div>
-    <button type="submit" class="startGameBtn"><i class="fa-solid fa-play"></i> Start game</button>
+    <div>
+        Your count of wins is #wins#<br>
+        Your count of losses is #loss#
+    </div>
     <div>
         <button onclick="window.location.assign('/logout')" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>

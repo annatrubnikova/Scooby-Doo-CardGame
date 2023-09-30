@@ -17,6 +17,7 @@ app.post("/create", db.addUser);
 app.post("/validate", db.addUser);
 app.use("/home", db.home);
 app.use("/settings", db.settings);
+app.use("/stats", db.stats);
 //app.use("/user", userRouter);
 //app.use("/done", db.done);
 app.get("/logout", db.logout);

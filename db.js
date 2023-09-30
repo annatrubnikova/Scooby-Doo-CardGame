@@ -10,7 +10,11 @@ function render(file, insert = false) {
         if (insert !== false) {
           Object.entries(insert).map(obj => {
             const [key, value] = obj;
-            eror = eror.replace(`#${key}#`, value ? `<span title="${value}" class="${key}Text">${value}</span>` : '');
+            if(key === 'avatar') {
+              eror = eror.replace(`#${key}1#`, value ? `<img src="${value}">` : '');
+              eror = eror.replace(`#${key}2#`, value ? `<img src="${value}">` : '');
+            }
+            else eror = eror.replace(`#${key}#`, value ? `<span title="${value}" class="${key}Text">${value}</span>` : '');
           });
         }
         return eror;
@@ -114,7 +118,11 @@ exports.home = function(request, response) {
     if(!request.session.user) {
         response.redirect('/signIn');
     } else {
-      response.send(render("home", {login: request.session.user.login, fullname: request.session.user.full_name, email: request.session.user.email}));
+      response.send(render("home", {
+        login: request.session.user.login, 
+        fullname: request.session.user.full_name, 
+        email: request.session.user.email,
+        avatar: request.session.user.avatar}));
     }
 };
 
@@ -172,7 +180,11 @@ exports.settings = async function(request, response) {
   }
   else {
     if (request.method === 'GET') {
-      response.send(render('settings', {login: request.session.user.login, fullname: request.session.user.full_name, email: request.session.user.email}));
+      response.send(render('settings', {
+        login: request.session.user.login, 
+        fullname: request.session.user.full_name, 
+        email: request.session.user.email, 
+        avatar: request.session.user.avatar}));
     }
     else {
       const user = new User();
@@ -198,7 +210,29 @@ exports.settings = async function(request, response) {
       }
       const result = await user.getList({ login: request.session.user.login });
       request.session.user = result[0];
-      response.send(render('settings', {status: 'Settings have changed.', login: request.session.user.login, fullname: request.session.user.full_name, email: request.session.user.email} ));
+      response.send(render('settings', {
+        status: 'Settings have changed.', 
+        login: request.session.user.login, 
+        fullname: request.session.user.full_name, 
+        email: request.session.user.email,
+        avatar: request.session.user.avatar}));
     }
   } 
+}
+
+exports.stats = async function(request, response) {
+  if(!request.session.user) {
+    response.redirect('/signIn');
+  }
+  else {
+    if (request.method === 'GET') {
+      response.send(render('stats', {
+        login: request.session.user.login, 
+        fullname: request.session.user.full_name, 
+        email: request.session.user.email, 
+        wins: request.session.user.counter_wins.toString(), 
+        loss: request.session.user.counter_losses.toString(),
+        avatar: request.session.user.avatar}));
+    }
+  }
 }

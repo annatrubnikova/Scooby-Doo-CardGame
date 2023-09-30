@@ -10,11 +10,11 @@
 </head>
 <body>
     <div id="userInfo">
-        <div class="loginAndAvatar">
+        <div onclick="hideUserInfo()" class="loginAndAvatar">
             <!-- add user`s login in span text and in span title and users photo in img -->
             #login#
             <!-- <span title="ShaggyAndScoobyDoo11111111111111111111111">ShaggyAndScoobyDoo11111111111111111111111</span> -->
-            <img onclick="hideUserInfo()" src="shaggy_avatar.jpg">
+            #avatar1#
         </div>
         <div class="fullname">
             <!-- add user`s fullname in span text and in span title -->
@@ -32,9 +32,9 @@
     <div class="mainSection menuSection">
         <h4 onclick="window.location.assign('/home')">The Name Game</h4>
         <div class="home-menu">
-            <button type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
+            <button onclick="window.location.assign('/settings')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
             <button onclick="window.location.assign('/home')" type="submit" class="settingBtn"><i class="fa-solid fa-gear"></i></button>
-            <img onclick="showUserInfo()" src="shaggy_avatar.jpg">
+            <u onclick="showUserInfo()">#avatar2#</u>
         </div>
     </div>
     <form action="/settings" method="POST">
