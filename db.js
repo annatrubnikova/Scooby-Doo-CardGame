@@ -188,34 +188,47 @@ exports.settings = async function(request, response) {
     }
     else {
       const user = new User();
-      if(request.body.fullname) {
-        console.log("changed");
-        await user.save({
-          id: request.session.user.id ,
-          full_name: request.body.fullname
-        });
+      const isPasswordValid = await crypt.compare(request.body.passwordCheck, request.session.user.password);
+      console.log(isPasswordValid);
+      if (!isPasswordValid) {
+        response.send(render('settings', {
+          login: request.session.user.login, 
+          fullname: request.session.user.full_name, 
+          email: request.session.user.email, 
+          avatar: request.session.user.avatar,
+          status: 'Your password is wrong!'
+        }))
       }
-      if(request.body.email) {
-        await user.save({
-          id: request.session.user.id ,
-          email: request.body.email
-        });
+      else {
+        if(request.body.fullname) {
+          console.log("changed");
+          await user.save({
+            id: request.session.user.id ,
+            full_name: request.body.fullname
+          });
+        }
+        if(request.body.email) {
+          await user.save({
+            id: request.session.user.id ,
+            email: request.body.email
+          });
+        }
+        if(request.body.password) {
+          const hashedPass = await crypt.hash(request.body.password, 8);
+          await user.save({
+            id: request.session.user.id,
+            password: hashedPass
+          });
+        }
+        const result = await user.getList({ login: request.session.user.login });
+        request.session.user = result[0];
+        response.send(render('settings', {
+          status: 'Settings have changed.', 
+          login: request.session.user.login, 
+          fullname: request.session.user.full_name, 
+          email: request.session.user.email,
+          avatar: request.session.user.avatar}));
       }
-      if(request.body.password) {
-        const hashedPass = await crypt.hash(request.body.password, 8);
-        await user.save({
-          id: request.session.user.id,
-          password: hashedPass
-        });
-      }
-      const result = await user.getList({ login: request.session.user.login });
-      request.session.user = result[0];
-      response.send(render('settings', {
-        status: 'Settings have changed.', 
-        login: request.session.user.login, 
-        fullname: request.session.user.full_name, 
-        email: request.session.user.email,
-        avatar: request.session.user.avatar}));
     }
   } 
 }

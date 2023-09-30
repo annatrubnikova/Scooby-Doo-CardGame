@@ -109,3 +109,27 @@
 .signMessage {
     text-align: center;
 }
+
+.errorText {
+    color: rgb(255, 77, 119);
+}
+
+.error-animation {
+    animation: redError 2s 1;
+}
+
+@keyframes redError
+{
+    0% {
+        color: rgb(255, 77, 119);
+    }
+    25% {
+        color: #a257f8;
+    }
+    75% {
+        color: #a257f8;
+    }
+    100% {
+        color: rgb(255, 77, 119);
+    }
+}
