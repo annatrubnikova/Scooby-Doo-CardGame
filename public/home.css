@@ -91,7 +91,7 @@ body:nth-child(2) {
     z-index: 10;
     height: 150px;
     width: 400px;
-    top: 19px;
+    top: 18px;
     right: 8px;
     background-color: white;
     border-radius: 15px;
@@ -116,6 +116,7 @@ body:nth-child(2) {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    text-align: start;
 }
 
 .fullnameText, .emailText {

@@ -236,3 +236,10 @@ exports.stats = async function(request, response) {
     }
   }
 }
+
+exports.chatPage = async function(req, res) {
+  if(!req.session.user) {
+    res.redirect('/signIn');
+  }
+  else res.sendFile(__dirname + '/views/chat.html')
+}
