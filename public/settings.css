@@ -1,0 +1,44 @@
+.settingBtn:hover .fa-xmark {
+    transform: rotate(-45deg);
+    transition-duration: 1s;
+}
+
+.settingBtn:hover {
+    background-color: rgb(255, 77, 119);
+    transition: 1s;
+}
+
+.settingBtn {
+    padding: 1px 22px;
+    background-color: #5a006b;
+}
+
+#hidden_if_empty {
+    color: rgb(84, 191, 120);
+    font-size: 18px;
+}
+
+#hidden_if_empty::before {
+    content: "\f0ee";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 5px;
+}
+
+.settingForm {
+    align-items: center;
+}
+
+.settingForm .loginInput {
+    align-items: flex-start;
+    margin-top: 16px;
+}
+
+#signUpFullname:-webkit-autofill {
+    box-shadow: 0 0 0 100px white inset !important;
+}
+
+.changeSettingsBtn {
+    cursor: pointer;
+    margin-top: 20px;
+}

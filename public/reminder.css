@@ -1,0 +1,16 @@
+.closeBtn {
+    padding: 1px 22px;
+}
+
+.home-menu {
+    justify-content: flex-end;
+}
+
+.errorText {
+    margin-bottom: 10px;
+}
+
+.remindPasswordBtn {
+    cursor: pointer;
+    margin-top: 40px;
+}

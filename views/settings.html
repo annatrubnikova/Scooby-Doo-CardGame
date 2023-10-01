@@ -6,67 +6,72 @@
     <title>Home</title>
     <link rel="stylesheet" type="text/css" href="main.css">
     <link rel="stylesheet" type="text/css" href="home.css">
+    <link rel="stylesheet" type="text/css" href="signIn.css">
+    <link rel="stylesheet" type="text/css" href="settings.css">
     <script src="https://kit.fontawesome.com/63fb3be0e9.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div id="userInfo">
-        <div onclick="hideUserInfo()" class="loginAndAvatar">
-            <!-- add user`s login in span text and in span title and users photo in img -->
-            #login#
-            <!-- <span title="ShaggyAndScoobyDoo11111111111111111111111">ShaggyAndScoobyDoo11111111111111111111111</span> -->
-            #avatar1#
-        </div>
-        <div class="fullname">
-            <!-- add user`s fullname in span text and in span title -->
-            <span>Fullname:</span>
-            #fullname#
-            <!-- <span title="Shaggy Rojers" class="fullnameText">Shaggy Rojers</span> -->
-        </div>
-        <div class="email">
-            <!-- add user`s email in span text and in span title -->
-            <span>Email:</span>
-            #email#
-            <!-- <span title="shaggy.Rojers0908@gmail.com" class="emailText">shaggy.Rojers0908@gmail.com</span> -->
-        </div>
-    </div>
-    <div class="mainSection menuSection">
-        <h4 onclick="window.location.assign('/home')">The Name Game</h4>
-        <div class="home-menu">
-            <button onclick="window.location.assign('/stats')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
-            <button onclick="window.location.assign('/home')" type="submit" class="settingBtn"><i class="fa-solid fa-gear"></i></button>
-            <u onclick="showUserInfo()">#avatar2#</u>
-        </div>
-    </div>
     <form action="/settings" method="POST">
-        #status#
-    <div class="mainSection">
-        <div class="column">
+        <div id="userInfo">
+            <div onclick="hideUserInfo()" class="loginAndAvatar">
+                #login#
+                <!-- <span title="ShaggyAndScoobyDoo11111111111111111111111">ShaggyAndScoobyDoo11111111111111111111111</span> -->
+                #avatar1#
+            </div>
+            <div class="fullname">
+                <span>Fullname:</span>
+                #fullname#
+                <!-- <span title="Shaggy Rojers" class="fullnameText">Shaggy Rojers</span> -->
+            </div>
+            <div class="email">
+                <span>Email:</span>
+                #email#
+                <!-- <span title="shaggy.Rojers0908@gmail.com" class="emailText">shaggy.Rojers0908@gmail.com</span> -->
+            </div>
+        </div>
+        <div class="mainSection menuSection">
+            <h4 onclick="window.location.assign('/home')">The Name Game</h4>
+            <div class="home-menu">
+                <button onclick="window.location.assign('/stats')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
+                <button onclick="window.location.assign('/home')" type="submit" class="settingBtn"><i class="fa-solid fa-xmark"></i></button>
+                <u onclick="showUserInfo()">#avatar2#</u>
+            </div>
+        </div>
+        <div class="signForm settingForm">
+            <div id="hidden_if_empty">#status#</div>
+            
             <div class="loginInput">
                 <span>Fullname</span>
                 <div>
                     <i class="fa-solid fa-signature"></i>
-                    <input type="text" name="fullname" placeholder="Enter your fullname" id="signUpFullname">
+                    <input type="text" name="fullname" placeholder="Enter your fullname" id="signUpFullname" value="">
                 </div>
             </div>
-        </div>
 
-        <div class="loginInput emailInput">
-            <span>Email</span>
-            <div>
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" name="email" placeholder="Enter your email" id="signUpEmail">
+            <div class="loginInput">
+                <span>Email</span>
+                <div>
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Enter your email" id="signUpEmail">
+                </div>
             </div>
-        </div>
 
-        <div class="loginInput avatarInput">
-            <span>Avatar</span>
-            <div>
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" name="avatar" placeholder="Enter your avatar" id="signUpAva">
+            <div class="loginInput avatarInput">
+                <span>Avatar</span>
+                <div>
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" name="avatar" placeholder="Enter your avatar" id="signUpAva">
+                </div>
             </div>
-        </div>
 
-        <div class="column">
+            <div class="loginInput">
+                <span>Old password</span>
+                <div>
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="passwordCheck" placeholder="Enter your old password" id="signUpPassCheck" required>
+                </div>
+            </div>
+
             <div class="loginInput">
                 <span>New password</span>
                 <div>
@@ -74,23 +79,16 @@
                     <input type="password" name="password" placeholder="Enter your new password" id="signUpPass">
                 </div>
             </div>
-            <div class="loginInput">
-                <span>Confirm: Input password</span>
-                <div>
-                    <i class="fa-solid fa-key"></i>
-                    <input type="password" name="passwordCheck" placeholder="Enter your old password" id="signUpPassCheck" required>
-                </div>
-            </div>
+
+            <button type="submit" class="changeSettingsBtn">Change settings</button>
         </div>
-    </div>
-    <button type="submit">Change settings</button>
+        <div>
+            <button onclick="window.location.assign('/logout')" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+        <footer>
+            <p>© Duderick and DarunKa company limited.AM</p>
+        </footer>
     </form>
-    <div>
-        <button onclick="window.location.assign('/logout')" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
-    </div>
-    <footer>
-        <p>© Duderick and DarunKa company limited.AM</p>
-    </footer>
 </body>
 <script>
     function showUserInfo () {
@@ -100,5 +98,19 @@
     function hideUserInfo () {
         document.getElementById("userInfo").style.display='none';
     }
+
+    window.onload = function() {
+        let hidden_if_empty = document.getElementById('hidden_if_empty');
+        hidden_if_empty.style.display = (hidden_if_empty.innerHTML.trim() === '#status#') ? 'none' : 'block';
+        const login = document.getElementsByClassName("fullnameText");
+        let valueOfLogin = document.getElementById('signUpFullname');
+        valueOfLogin.value = login[0].textContent;
+        const mail = document.getElementsByClassName("emailText");
+        let valueOfmail = document.getElementById('signUpEmail');
+        valueOfmail.value = mail[0].textContent;
+    };
+    //const db = require('./db');
+    
+    //inputField.value = result[0].column_name
 </script>
 </html>

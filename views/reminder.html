@@ -4,36 +4,43 @@
 <head>
   <title>Password reminder</title>
   <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="signIn.css">
+  <link rel="stylesheet" href="reminder.css">
+  <script src="https://kit.fontawesome.com/63fb3be0e9.js" crossorigin="anonymous"></script>
+
 </head>
 
 <body>
-<div class="home-class">
-  <div><h1>Password reminder</h1></div>
-  <div class="home-menu">
-    <ul>
-      <li onclick="window.location.assign('/signIn')">sign In</li>
-      <li onclick="window.location.assign('/signUp')">sign Up</li>
-    </ul>
-  </div>
-</div>
-  <div class="container">
-    <div class="box">
-      <form action="/reminder" method="post">
-        #message#
-        <div class="form-group">
-          <label for="email">email: </label>
-          <input type="email" name="email" id="email" placeholder="Input email" required>
-        </div>
-        <div class="submitBtn">
-          <button type="submit">Send</button>
-        </div>
-
-      </form>
+  <div class="mainSection menuSection">
+    <h4>Password reminder</h4>
+    <div class="home-menu">
+        <button onclick="window.location.assign('/signIn')" class="closeBtn"><i class="fa-solid fa-xmark"></i></button>
     </div>
+  </div>
+  <form action="/reminder" method="post">
+  <div class="signForm">
+    <div id="hidden_if_empty" class="errorText">#message#</div>
+
+    <div class="loginInput emailInput">
+      <span>Email</span>
+      <div>
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" name="email" placeholder="Enter your email" required id="signUpEmail">
+      </div>
+    </div>
+
+    <button type="submit" class="remindPasswordBtn">Send new password</button>
   </div>
   <footer>
     <p>© Duderick and DarunKa company limited.AM</p>
 </footer>
+</form>
 </body>
-
+<script>
+  window.onload = function() {
+        let hidden_if_empty = document.getElementById('hidden_if_empty');
+        hidden_if_empty.style.display = (hidden_if_empty.innerHTML.trim() === '#message#') ? 'none' : 'block';
+    };
+</script>
 </html>

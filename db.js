@@ -201,7 +201,6 @@ exports.settings = async function(request, response) {
       }
       else {
         if(request.body.fullname) {
-          console.log("changed");
           await user.save({
             id: request.session.user.id ,
             full_name: request.body.fullname

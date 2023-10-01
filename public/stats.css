@@ -1,0 +1,14 @@
+.statBtn:hover .fa-xmark {
+    transform: rotate(-45deg);
+    transition-duration: 1s;
+}
+
+.statBtn:hover {
+    background-color: rgb(255, 77, 119);
+    transition: 1s;
+}
+
+.statBtn {
+    padding: 1px 22px;
+    background-color: #5a006b;
+}

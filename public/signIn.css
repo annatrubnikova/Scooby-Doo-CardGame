@@ -36,8 +36,8 @@
 }
 
 .loginInput input:focus{
-    border-color: #5000ab;
-    color: #5000ab;
+    border-color: #5a006b;
+    color: #5a006b;
 }
 
 .loginInput input:focus::placeholder {
@@ -110,26 +110,23 @@
     text-align: center;
 }
 
-.errorText {
+.signForm .signMessage {
+    margin-top: 10px;
+}
+
+.errorText, #messageDisplay {
     color: rgb(255, 77, 119);
 }
 
-.error-animation {
-    animation: redError 2s 1;
+#signInLogin:-webkit-autofill, #signUpLogin:-webkit-autofill, #signUpFullname:-webkit-autofill, #signUpEmail:-webkit-autofill {
+    box-shadow: 0 0 0 100px white inset !important;
 }
 
-@keyframes redError
-{
-    0% {
-        color: rgb(255, 77, 119);
-    }
-    25% {
-        color: #a257f8;
-    }
-    75% {
-        color: #a257f8;
-    }
-    100% {
-        color: rgb(255, 77, 119);
-    }
+#hidden_if_empty {
+    font-size: 16px;
+}
+
+#messageDisplay {
+    margin-top: 10px;
+    text-align: center;
 }

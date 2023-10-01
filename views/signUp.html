@@ -55,6 +55,7 @@
                     </div>
                 </div>
             </div>
+            <div id="messageDisplay"></div>
         </div>
         <button type="submit" name="button" class="signUpBtn">Sign up</button>
     </form>
@@ -71,10 +72,11 @@
           let password = document.querySelector('#signUpPass');
           let confirm = document.querySelector('#signUpPassCheck');
           let error = document.getElementById('error');
+          let placetoInput = document.getElementById('messageDisplay');
           if(password.value != confirm.value) {
             element.preventDefault();
             if(!error) {
-              confirm.insertAdjacentHTML("afterend", "<div class='message error' id='error'>Passwords does not match!</div>");
+              placetoInput.insertAdjacentHTML('beforeend', "<div class='message error' id='error'>Passwords does not match!</div>");
             }
           } else {
               error.parentNode.removeChild(error);

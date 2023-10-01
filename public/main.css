@@ -33,6 +33,7 @@ h2, h4 {
     color: #a257f8;
     text-align: center;
     margin: 0;
+    cursor: pointer;
 }
 
 button {
