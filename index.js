@@ -28,6 +28,8 @@ app.use('/', routes);
 const server = http.createServer(app);
 const io = socketio(server);
 
+let games = {};
+
 const cards = [
   { id: 1, attack: 4, defense: 2 },
   { id: 2, attack: 3, defense: 3 },
@@ -94,20 +96,6 @@ function startTurnTimer(user1, user2, activeUser) {
 }
 
 
-
-// function startTurnTimer(user1, user2, activeUser) {
-//   const inactiveUser = activeUser === user1 ? user2 : user1;
-
-//   clearTimeout(inactiveUser.turnTimer);
-
-//   activeUser.emit('your-move', true);
-//   inactiveUser.emit('your-move', false);
-
-//   activeUser.turnTimer = setTimeout(() => {
-//       startTurnTimer(user1, user2, inactiveUser);
-//   }, 15000);
-// }
-
 let waitingQueue = [];
 
 io.on('connection', (sock) => {
@@ -170,18 +158,24 @@ io.on('connection', (sock) => {
       user1.deck = player1Deck;
       user2.deck = player2Deck;
 
-
+      
       user1.emit('opponent-info', { login: user2.login });
       user2.emit('opponent-info', { login: user1.login });
 
       const firstMover = Math.random() < 0.5 ? 'user1' : 'user2';
+
+      games[roomId] = {
+        user1: { ...user1, deck: player1Deck, health: 20 },
+        user2: { ...user2, deck: player2Deck, health: 20 },
+        activeUser: firstMover === 'user1' ? user1.id : user2.id
+      };
 
       if (firstMover === 'user1') {
         startTurnTimer(user1, user2, user1);
       } else {
         startTurnTimer(user1, user2, user2);
       }
-    
+      
       const handleCardSelection = (activeUser, opponentUser) => {
         activeUser.on('card-selected', (cardId) => {
           clearTimeout(activeUser.turnTimer);
@@ -192,8 +186,9 @@ io.on('connection', (sock) => {
           opponentUser.emit('your-move', true);
       
           removeCardFromDeck(opponentUser, cardId);  
-      
+          console.log(cardId);
           const card = getCardById(cardId);
+          console.log(card);
           opponentUser.health -= card.attack;
           if (activeUser.health <= 5) {
             activeUser.health += card.defense;
@@ -216,7 +211,10 @@ io.on('connection', (sock) => {
       }
           activeUser.emit('update-health', { playerHealth: activeUser.health, opponentHealth: opponentUser.health });
           opponentUser.emit('update-health', { playerHealth: opponentUser.health, opponentHealth: activeUser.health });
-      
+          
+          games[roomId].user1 = { ...activeUser };
+          games[roomId].user2 = { ...opponentUser };
+
           startTurnTimer(activeUser, opponentUser, opponentUser);
         });
       };
@@ -248,6 +246,16 @@ sock.on('register-login', (login) => {
       waitingQueue.splice(index, 1);
     }
   });
+
+  sock.on('reconnect-request', (roomId) => {
+    const game = games[roomId];
+    if (game) {
+      if (game.user1.id === sock.id || game.user2.id === sock.id) {
+        sock.emit('game-state', game);
+      }
+    }
+  });
+  
 });
 
 function leaveChatRoom(sock) {
@@ -258,11 +266,16 @@ function leaveChatRoom(sock) {
       }
   });
   sock.inChatRoom = false;
+  const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
+  if (gameRoom) {
+    delete games[gameRoom];
+  }
+
   sock.emit('redirect-to-home');
 }
 
 function getCardById(cardId) {
-  return cards.find(card => card.id === cardId);
+  return cards.find(card => card.id == cardId);
 }
 
 server.on('error', (err) => {
