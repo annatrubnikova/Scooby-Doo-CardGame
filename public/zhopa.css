@@ -123,6 +123,7 @@ canvas {
   justify-content: center;
   align-items: center;
 }
+
 #ggggg {
   flex-grow: 1;  
   display: flex;
@@ -143,4 +144,20 @@ canvas {
   background-color: #f1f1f1;
   padding: 10px; 
   border-radius: 5px; 
+}
+
+.disabled-card {
+  opacity: 0.6;
+  pointer-events: none; 
+}
+
+#ggggg .card, #game-table .card {
+  pointer-events: none;
+}
+
+.opponent-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
 }
