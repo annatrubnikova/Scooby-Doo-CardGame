@@ -14,7 +14,7 @@ function render(file, insert = false) {
               eror = eror.replace(`#${key}1#`, value ? `<img src="${value}">` : '');
               eror = eror.replace(`#${key}2#`, value ? `<img src="${value}">` : '');
             }
-            else eror = eror.replace(`#${key}#`, value ? `<span title="${value}" class="${key}Text">${value}</span>` : '');
+            else if(value.toString() != '') eror = eror.replace(`#${key}#`, value ? `<span title="${value}" class="${key}Text">${value}</span>` : '');
           });
         }
         return eror;
@@ -202,7 +202,7 @@ exports.settings = async function(request, response) {
       else {
         if(request.body.email) {
           let result = await user.getList({ email: request.body.email });
-          if(result[0] && request.body.email == request.session.user.email) {
+          if(result[0] && request.body.email !== request.session.user.email) {
             response.send(render('settings', {
               login: request.session.user.login, 
               fullname: request.session.user.full_name, 
@@ -212,13 +212,16 @@ exports.settings = async function(request, response) {
             }))
             return;
           }
-          await user.save({
-            id: request.session.user.id ,
-            email: request.body.email
-          });
+          if(request.body.email !== request.session.user.email) {
+            await user.save({
+              id: request.session.user.id ,
+              email: request.body.email
+            });
+          }
         }
         if(request.body.fullname) {
-
+          console.log(request.session.user.full_name);
+          if(request.body.fullname !== request.session.user.full_name)
           await user.save({
             id: request.session.user.id ,
             full_name: request.body.fullname
@@ -231,10 +234,17 @@ exports.settings = async function(request, response) {
             password: hashedPass
           });
         }
-        const result = await user.getList({ login: request.session.user.login });
-        request.session.user = result[0];
+        let status;
+        if(request.session.user.full_name != request.body.fullname 
+          || request.session.user.email != request.body.email
+            || (request.body.password != request.body.passwordCheck && request.body.password)) {
+                status = 'Settings have changed.';
+        }
+        else status = '';
+        const curruser = await user.getList({ login: request.session.user.login });
+        request.session.user = curruser[0];
         response.send(render('settings', {
-          status: 'Settings have changed.', 
+          status: status, 
           login: request.session.user.login, 
           fullname: request.session.user.full_name, 
           email: request.session.user.email,
