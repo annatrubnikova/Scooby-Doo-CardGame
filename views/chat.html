@@ -7,7 +7,7 @@
   </head>
   <body>
     <!-- ЧАТ -->
-    <button onclick="searchChatPartner()">Знайти співрозмовника</button>
+    <!-- <button onclick="searchChatPartner()">Знайти співрозмовника</button> -->
     <div id="chat-room" style="display: none;">
         <ul id="chat-messages"></ul>
         <input type="text" id="message-input">
@@ -73,6 +73,7 @@
       const socket = io();
       let currentRoomId;
       socket.emit('register-login', userLogin);
+      socket.emit('search-chat-partner');
 
       socket.on('chat-room-assigned', (roomId) => {
         currentRoomId = roomId;
@@ -200,9 +201,9 @@ socket.on('update-health', (data) => {
 });
 
 
-      function searchChatPartner() {
-        socket.emit('search-chat-partner');
-      }
+      // function searchChatPartner() {
+      //   socket.emit('search-chat-partner');
+      // }
 
       function sendPrivateMessage() {
         const messageInput = document.getElementById('message-input');
