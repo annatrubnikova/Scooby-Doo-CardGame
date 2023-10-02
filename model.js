@@ -5,16 +5,6 @@ class Model {
     constructor(table) {
         this.table = table;
     }
-    
-    _getResult(rows) {
-        return rows.map(function(item) {
-            let res;
-            for(let key in item) {
-                res[key] = item[key];
-            }
-            return res;
-        });
-    }
 
     _connect(query) {
         let result;
@@ -75,20 +65,20 @@ class Model {
                 return true;
             }
         }
-    }
-    
-    async getAll() {
-        const query = `SELECT * FROM ${this.table};`;
-        const [rows] = await this._connect(query);
-      
-        if (rows) {
-          rows.forEach(item => {
-            this.data.push(item);
-          });
+    }   
+
+    async deleteUser(id) {
+        if (!id) {
+            return false;
         }
-      
-        return this;
-      }      
+        const query = `DELETE FROM ${this.table} WHERE id=${id};`;
+        const [result] = await this._connect(query);
+        if (result.affectedRows > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     async getList(info) {
         const dataes = [];

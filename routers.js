@@ -13,6 +13,7 @@ router.get("/logout", db.logout);
 router.get("/signUp", db.register);
 router.use("/reminder", db.reminder);
 router.use("/signIn", db.login);
+router.post("/delete", db.delete);
 router.use("/", db.index);
 
 module.exports = router;

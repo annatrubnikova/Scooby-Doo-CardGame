@@ -277,3 +277,15 @@ exports.chatPage = async function(req, res) {
   }
   else res.sendFile(__dirname + '/views/chat.html')
 }
+
+exports.delete = async function(request, res) {
+  if(!request.session.user) {
+    res.redirect('/signIn');
+  }
+  else {
+    const user = new User();
+    console.log(request.session.user.id);
+    await user.deleteUser(request.session.user.id);
+    res.redirect('/logout');
+  }
+}
