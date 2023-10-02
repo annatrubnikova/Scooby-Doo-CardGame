@@ -36,7 +36,7 @@
           <!-- Тут будуть карти гравця -->
       </div>
     </div>
-
+    <audio id="audioPlayer" src="flipcard.mp3"></audio>
 
 
 
@@ -236,6 +236,23 @@ function enableCardClicks() {
         card.classList.remove('disabled-card'); // Видаляємо деактивний клас з карти
     });
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.getElementsByClassName('card');
+    const audioPlayer = document.getElementById('audioPlayer');
+    cards.volume = 0.01;
+    Array.from(cards).forEach(function (card) {
+    card.addEventListener('click', function () {
+      console.log(card.classList.contains('disabled-card'));
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+      } else {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+      }
+    });
+  });
+});
 
     </script>
   </body>
