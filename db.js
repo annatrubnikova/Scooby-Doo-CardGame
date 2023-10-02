@@ -196,20 +196,32 @@ exports.settings = async function(request, response) {
           fullname: request.session.user.full_name, 
           email: request.session.user.email, 
           avatar: request.session.user.avatar,
-          status: 'Your password is wrong!'
+          error: 'Your password is wrong!'
         }))
       }
       else {
-        if(request.body.fullname) {
-          await user.save({
-            id: request.session.user.id ,
-            full_name: request.body.fullname
-          });
-        }
         if(request.body.email) {
+          let result = await user.getList({ email: request.body.email });
+          if(result[0] && request.body.email == request.session.user.email) {
+            response.send(render('settings', {
+              login: request.session.user.login, 
+              fullname: request.session.user.full_name, 
+              email: request.session.user.email, 
+              avatar: request.session.user.avatar,
+              error: 'This e-mail is already in use.'
+            }))
+            return;
+          }
           await user.save({
             id: request.session.user.id ,
             email: request.body.email
+          });
+        }
+        if(request.body.fullname) {
+
+          await user.save({
+            id: request.session.user.id ,
+            full_name: request.body.fullname
           });
         }
         if(request.body.password) {

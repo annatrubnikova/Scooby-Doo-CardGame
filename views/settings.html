@@ -39,6 +39,7 @@
         </div>
         <div class="signForm settingForm">
             <div id="hidden_if_empty">#status#</div>
+            <div id="hidden_if_empty_error">#error#</div>
             
             <div class="loginInput">
                 <span>Fullname</span>
@@ -102,6 +103,8 @@
     window.onload = function() {
         let hidden_if_empty = document.getElementById('hidden_if_empty');
         hidden_if_empty.style.display = (hidden_if_empty.innerHTML.trim() === '#status#') ? 'none' : 'block';
+        let hidden_if_empty_error = document.getElementById('hidden_if_empty_error');
+        hidden_if_empty_error.style.display = (hidden_if_empty_error.innerHTML.trim() === '#error#') ? 'none' : 'block';
         const login = document.getElementsByClassName("fullnameText");
         let valueOfLogin = document.getElementById('signUpFullname');
         valueOfLogin.value = login[0].textContent;
@@ -109,8 +112,5 @@
         let valueOfmail = document.getElementById('signUpEmail');
         valueOfmail.value = mail[0].textContent;
     };
-    //const db = require('./db');
-    
-    //inputField.value = result[0].column_name
 </script>
 </html>
