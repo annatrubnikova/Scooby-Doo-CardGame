@@ -110,11 +110,13 @@
 
         // Відображення ваших карт
         deck.forEach(card => {
-          const cardElement = document.createElement('div');
+          const cardElement = document.createElement('img');
           cardElement.classList.add('card');
           cardElement.classList.add('mycard');
           cardElement.setAttribute('id', `${card.id}`);
           cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
+          cardElement.src = `back_card.png`;
+          //cardElement.src = `card${card.id}.png`;
           cardElement.onclick = () => {
             socket.emit('card-selected', card.id);
             socket.emit('your-card-selected', card.id);
