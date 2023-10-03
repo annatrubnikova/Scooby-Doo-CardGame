@@ -98,7 +98,8 @@
           cardElement.classList.add('card');
           cardElement.classList.add('mycard');
           cardElement.setAttribute('id', `${card.id}`);
-          cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
+          cardElement.src = `card${card.id}.png`;
+          //cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
           cardElement.onclick = () => {
             socket.emit('card-selected', card.id);
             socket.emit('your-card-selected', card.id);
@@ -130,9 +131,13 @@ socket.on('opponent-info', (data) => {
 socket.on('your-card-selected', (cardId) => {  
     const centerArea = document.getElementById('game-table');
     const cardData = mycards.find(card => card.id == cardId); 
-    const cardElement = document.createElement('div');
+    
+  //const cardElement = document.createElement('div');
+    const cardElement = document.createElement('img');
     cardElement.classList.add('card');
-    cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
+      //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
+    cardElement.src = `card${cardId}.png`;
+    //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
     let displayCoins = document.getElementById('coins-display');
     userCoins -= cardData.coins;
     displayCoins.textContent =  "Монетки: " + userCoins;
