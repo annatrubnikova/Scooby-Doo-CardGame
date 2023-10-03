@@ -111,8 +111,9 @@
 
     // Створення 10 "закритих" карток для опонента
     for (let i = 0; i < 10; i++) {
-        const cardBackElement = document.createElement('div');
-        cardBackElement.classList.add('card', 'card-back');
+        const cardBackElement = document.createElement('img');
+        cardBackElement.src = 'back_card.png';
+        cardBackElement.classList.add('card', 'card-back', 'card-oppo');
         opponentCards.appendChild(cardBackElement);
     }
 });
