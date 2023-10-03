@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.static('public'));
-app.use(express.static('images/card'));
 app.use(express.static('sounds'));
 app.use(express.static('images'));
 app.use('/', express.static('views'));
@@ -127,11 +126,9 @@ io.on('connection', (sock) => {
     
     waitingQueue.push(sock);
 
-    // Якщо в черзі двоє людей, ми створюємо чат між ними
     while (waitingQueue.length >= 2) {
       const user1 = waitingQueue.shift();
 
-      // Знаходимо іншого користувача, що не є користувачем user1
       let user2;
       for (let i = 0; i < waitingQueue.length; i++) {
         if (waitingQueue[i].id !== user1.id) {
@@ -140,7 +137,6 @@ io.on('connection', (sock) => {
         }
       }
       
-      // Якщо user2 не знайдений, виходимо з циклу
       if (!user2) break;
 
       const roomId = `${user1.id}-${user2.id}`;
@@ -260,12 +256,6 @@ sock.on('disconnect', () => {
 });
 
 function handleUserDisconnect(sock) {
-  // Remove user from the waiting queue if they are in it
-  const index = waitingQueue.indexOf(sock);
-  if (index > -1) {
-      waitingQueue.splice(index, 1);
-  }
-
   const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
   if (gameRoom) {
     const game = games[gameRoom];
@@ -279,36 +269,20 @@ function handleUserDisconnect(sock) {
     
     if (opponentSocket && opponentSocket.connected) {
       opponentSocket.emit('game-over', { result: 'win' });
-      sock.emit('game-over', { result: 'lose' });
     } 
 
     leaveChatRoom(opponentSocket);
     leaveChatRoom(sock);
     delete games[gameRoom];
-  }
-
-  sock.emit('redirect-to-home');
-}
-
-
-
-  // sock.on('disconnect', () => {
-  //   leaveChatRoom(sock);
-  //   // Remove user from the waiting queue if they are in it
-  //   const index = waitingQueue.indexOf(sock);
-  //   if (index > -1) {
-  //     waitingQueue.splice(index, 1);
-  //   }
-  // });
-
-  sock.on('reconnect-request', (roomId) => {
-    const game = games[roomId];
-    if (game) {
-      if (game.user1.id === sock.id || game.user2.id === sock.id) {
-        sock.emit('game-state', game);
-      }
+  } else {
+    const index = waitingQueue.indexOf(sock);
+    if (index > -1) {
+      waitingQueue.splice(index, 1);
+      console.log(`User ${sock.id} left the waiting queue`);
+      sock.emit('game-over', 'goodbye');
     }
-  });
+  }
+}
   
 });
 
@@ -324,8 +298,6 @@ function leaveChatRoom(sock) {
   if (gameRoom) {
     delete games[gameRoom];
   }
-
-  sock.emit('redirect-to-home');
 }
 
 function getCardById(cardId) {
@@ -339,5 +311,3 @@ server.on('error', (err) => {
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
-
-
