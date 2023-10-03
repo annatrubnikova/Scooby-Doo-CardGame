@@ -11,7 +11,7 @@ function render(file, insert = false) {
           Object.entries(insert).map(obj => {
             const [key, value] = obj;
             if(key === 'avatar') {
-              eror = eror.replace(`#${key}1#`, value ? `<img src="${value}">` : '');
+              eror = eror.replace(`#${key}1#`, value ? `<img src="${value}" class="avatarValue ${value}">` : '');
               eror = eror.replace(`#${key}2#`, value ? `<img src="${value}">` : '');
             }
             else if(value.toString() != '') eror = eror.replace(`#${key}#`, value ? `<span title="${value}" class="${key}Text">${value}</span>` : '');

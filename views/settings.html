@@ -59,10 +59,7 @@
 
             <div class="loginInput avatarInput">
                 <span>Avatar</span>
-                <div>
-                    <i class="fa-solid fa-envelope"></i>
-                    <input type="email" name="avatar" placeholder="Enter your avatar" id="signUpAva">
-                </div>
+                <div id="arrayOfAvatars"></div>
             </div>
 
             <div class="loginInput">
@@ -103,6 +100,10 @@
         document.getElementById("userInfo").style.display='none';
     }
 
+    function onImageClick () {
+        
+    }
+
     window.onload = function() {
         let hidden_if_empty = document.getElementById('hidden_if_empty');
         hidden_if_empty.style.display = (hidden_if_empty.innerHTML.trim() === '#status#') ? 'none' : 'block';
@@ -114,6 +115,25 @@
         const mail = document.getElementsByClassName("emailText");
         let valueOfmail = document.getElementById('signUpEmail');
         valueOfmail.value = mail[0].textContent;
+
+        //avatars rendering
+        let container = document.getElementById('arrayOfAvatars');
+        let images = ['daphne_avatar.JPG', 'fred_avatar.JPG', 'scooby_avatar.png', 'shaggy_avatar.jpg', 'velma_avatar.JPG'];
+        for(let i = 0; i<images.length; i++) {
+            let image = document.createElement("img");
+            image.src = images[i];
+            image.classList.add(images[i], document.getElementsByClassName("avatarValue")[0].classList[1] == images[i] ? 'selectedAvatar' : 'unselected');
+            image.addEventListener('click', () => {
+                const imgElements = document.querySelectorAll('#arrayOfAvatars img');
+                imgElements.forEach((img) => {
+                    img.classList.remove('selectedAvatar');
+                    img.classList.add('unselected');
+                });
+                image.classList.add('selectedAvatar');
+                image.classList.remove('unselected');
+            });
+            container.appendChild(image);
+        }
     };
 </script>
 </html>

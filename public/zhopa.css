@@ -114,7 +114,6 @@ canvas {
   width: 100%;
   display: flex;
   justify-content: center;  
-  gap: 10px;  
 }
 
 #game-table {
@@ -162,14 +161,14 @@ canvas {
   cursor: pointer;
 }
 
-.card-oppo {
+.card-oppo, .card-on-table {
   width: 95px;
   height: 120px;
   border: none;
 }
 
 .mycard {
-  width: 95px;
-  height: 120px;
+  width: 105px;
+  height: 133px;
   border: none;
 }
