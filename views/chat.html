@@ -94,11 +94,12 @@
         mycards = deck;
     // Відображення ваших карт
         deck.forEach(card => {
-          const cardElement = document.createElement('div');
+          const cardElement = document.createElement('img');
           cardElement.classList.add('card');
           cardElement.classList.add('mycard');
           cardElement.setAttribute('id', `${card.id}`);
-          cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
+          cardElement.src = `card${card.id}.png`;
+          //cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
           cardElement.onclick = () => {
             socket.emit('card-selected', card.id);
             socket.emit('your-card-selected', card.id);
@@ -110,8 +111,9 @@
 
     // Створення 10 "закритих" карток для опонента
     for (let i = 0; i < 10; i++) {
-        const cardBackElement = document.createElement('div');
-        cardBackElement.classList.add('card', 'card-back');
+        const cardBackElement = document.createElement('img');
+        cardBackElement.src = 'back_card.png';
+        cardBackElement.classList.add('card', 'card-back', 'card-oppo');
         opponentCards.appendChild(cardBackElement);
     }
 });
@@ -130,9 +132,13 @@ socket.on('opponent-info', (data) => {
 socket.on('your-card-selected', (cardId) => {  
     const centerArea = document.getElementById('game-table');
     const cardData = mycards.find(card => card.id == cardId); 
-    const cardElement = document.createElement('div');
+    
+  //const cardElement = document.createElement('div');
+    const cardElement = document.createElement('img');
     cardElement.classList.add('card');
-    cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
+      //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
+    cardElement.src = `card${cardId}.png`;
+    //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
     let displayCoins = document.getElementById('coins-display');
     userCoins -= cardData.coins;
     displayCoins.textContent =  "Монетки: " + userCoins;
@@ -144,9 +150,10 @@ let opponentCardsRemaining = 10;
 socket.on('opponent-card-selected', (cardOpponent) => {
     console.log('Card:', cardOpponent);        
     const centerArea = document.getElementById('ggggg');
-    const cardElement = document.createElement('div');
+    const cardElement = document.createElement('img');
     cardElement.classList.add('opponent-card');
-    cardElement.textContent = `Attack: ${cardOpponent.attack} Defense: ${cardOpponent.defense} Coins: ${cardOpponent.coins}`; 
+    cardElement.src = `card${cardOpponent.id}.png`;
+    //cardElement.textContent = `Attack: ${cardOpponent.attack} Defense: ${cardOpponent.defense} Coins: ${cardOpponent.coins}`; 
     centerArea.appendChild(cardElement);
 
     // Видаляємо "закриту" картку опонента
@@ -223,42 +230,6 @@ function enableCardClicks() {
     });
 }
 
-
-
-// function enableCardClicks() {
-//     const cards = document.querySelectorAll('.mycard');
-//     const audioPlayer = document.getElementById('audioPlayer');
-//     cards.volume = 0.01;
-//     cards.forEach(card => {
-//         card.onclick = () => {
-//           if (audioPlayer.paused) {
-//               audioPlayer.play();
-//           } else {
-//             audioPlayer.pause();
-//             audioPlayer.currentTime = 0;
-//           }
-//             socket.emit('card-selected', card.getAttribute('id'));
-//             socket.emit('your-card-selected', card.getAttribute('id'));
-//             console.log("Card clicked!");
-//             event.currentTarget.parentNode.removeChild(event.currentTarget);
-//         };
-//         card.classList.remove('disabled-card'); // Видаляємо деактивний клас з карти
-//     });
-// }
-
-// document.addEventListener('DOMContentLoaded', function () {
-//         const cards = document.getElementsByClassName('mycard');
-//         const audioPlayer = document.getElementById('audioPlayer');
-//         cards.volume = 0.01;
-//         cards.map(addEventListener('click', function (card) {
-//         if (audioPlayer.paused) {
-//             audioPlayer.play();
-//         } else {
-//             audioPlayer.pause();
-//             audioPlayer.currentTime = 0;
-//         }
-//     }));
-// });
 
 let exitUser = 0;
 
