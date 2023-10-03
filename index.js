@@ -12,7 +12,7 @@ app.use('/public', express.static(__dirname + '/public'));
 app.use(session({secret: 'hsjhjgkdfjgksj', saveUninitialized: true, resave: true, user: {}}));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-
+app.use(express.static('images/card'));
 app.use(express.static('public'));
 app.use(express.static('sounds'));
 app.use(express.static('images'));
