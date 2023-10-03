@@ -8,7 +8,7 @@ socket.emit('search-chat-partner');
 
 socket.on('chat-room-assigned', (roomId) => {
  currentRoomId = roomId;
- document.getElementById("chat-room").style.display = "block";
+ document.getElementById("chat-room").style.display = "flex";
  console.log(`Ви приєдналися до кімнати: ${roomId}`);
 });
 
@@ -29,7 +29,8 @@ socket.on('private-message', (messageData) => {
    messageItem.classList.add('their-message');
    messageItem.textContent = messageData.senderLogin + ": " + messageData.text;
  }
-
+ messagesList.scrollTop = messagesList.scrollHeight + 200;
+ //messagesList.style.height = +messagesList.style.height + 30 + "px";
  messagesList.appendChild(messageItem);
 });
 
@@ -207,3 +208,5 @@ return message;
 }
 });
 
+let textarea = document.getElementById('chat-messages');
+textarea.scrollTop = textarea.scrollHeight;

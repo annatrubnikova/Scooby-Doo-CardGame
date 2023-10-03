@@ -33,6 +33,7 @@
     <div class="mainSection menuSection">
         <h4>The Name Game</h4>
         <div class="home-menu">
+            <button onclick=stopMusic() type="submit" class="statBtn"><i id="volume" class="fa-solid fa-volume-off"></i>
             <button onclick="window.location.assign('/stats')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
             <button onclick="window.location.assign('/settings')" type="submit" class="settingBtn"><i class="fa-solid fa-gear"></i></button>
             <u onclick="showUserInfo()">#avatar2#</u>
@@ -42,6 +43,7 @@
     <div>
         <button onclick="logOut()" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
+    <audio id="audio" src="Scooby-Doo.mp3" autoplay></audio>
     <footer>
         <p>© Duderick and DarunKa company limited.AM</p>
     </footer>

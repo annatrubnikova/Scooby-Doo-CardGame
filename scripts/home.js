@@ -21,3 +21,21 @@ if (isExit == 'true') {
     window.location.href = '/lose-page';
     alert('Ви програли.');
 }
+
+function stopMusic() {
+    let audio = document.getElementById("audio");
+    let volume = document.getElementById("volume");
+    if(audio.volume == 0.01) {
+         audio.volume = 0;
+         volume.classList.remove('fa-volume-off');
+         volume.classList.add('fa-volume-xmark');
+    }
+    else {
+        audio.volume = 0.01;
+        volume.classList.add('fa-volume-off');
+        volume.classList.remove('fa-volume-xmark');
+    }
+}
+
+let audio = document.getElementById("audio");
+audio.volume = 0.01;

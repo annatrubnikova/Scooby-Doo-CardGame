@@ -239,7 +239,8 @@ exports.settings = async function(request, response) {
         let status;
         if(request.session.user.full_name != request.body.fullname 
           || request.session.user.email != request.body.email
-            || (request.body.password != request.body.passwordCheck && request.body.password)) {
+            || (request.body.password != request.body.passwordCheck && request.body.password
+              || request.session.user.avatar != request.body.avatar)) {
                 status = 'Settings have changed.';
         }
         else status = '';
