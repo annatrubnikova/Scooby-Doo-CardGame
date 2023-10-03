@@ -13,6 +13,8 @@ router.get("/signUp", db.register);
 router.use("/reminder", db.reminder);
 router.use("/signIn", db.login);
 router.post("/delete", db.delete);
+router.use("/win-page", db.win);
+router.use("/lose-page", db.lose);
 router.use("/", db.index);
 
 module.exports = router;

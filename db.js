@@ -133,10 +133,6 @@ exports.index = function(request, response) {
   response.send(render(pageToRender, false));
 };
 
-exports.done = function(request, response) {
-    response.redirect("/done.html");
-};
-
 exports.logout = async function(request, response) {
 
     request.session.destroy((err) => {
@@ -220,11 +216,17 @@ exports.settings = async function(request, response) {
           }
         }
         if(request.body.fullname) {
-          console.log(request.session.user.full_name);
           if(request.body.fullname !== request.session.user.full_name)
           await user.save({
             id: request.session.user.id ,
             full_name: request.body.fullname
+          });
+        }
+        if(request.body.avatar) {
+          if(request.body.avatar !== request.session.user.avatar)
+          await user.save({
+            id: request.session.user.id ,
+            avatar: request.body.avatar
           });
         }
         if(request.body.password) {
@@ -287,5 +289,33 @@ exports.delete = async function(request, res) {
     console.log(request.session.user.id);
     await user.deleteUser(request.session.user.id);
     res.redirect('/logout');
+  }
+}
+
+exports.win = async function(request, response) {
+  if(!request.session.user) {
+    response.redirect('/signIn');
+  }
+  else{  
+    const user = new User();
+    await user.save({
+      id: request.session.user.id,
+      counter_wins: request.session.user.counter_wins++
+    });
+    response.redirect('/home');
+  }
+}
+
+exports.lose = async function(request, response) {
+  if(!request.session.user) {
+    response.redirect('/signIn');
+  }
+  else{ 
+    const user = new User();
+    await user.save({
+      id: request.session.user.id,
+      counter_losses: request.session.user.counter_losses++
+    });
+    response.redirect('/home');
   }
 }

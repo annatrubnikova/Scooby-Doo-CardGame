@@ -60,6 +60,7 @@
 
             <div class="loginInput avatarInput">
                 <span>Avatar</span>
+                <input type="text" name="avatar" id="signUpavatar" style="display: none">
                 <div id="arrayOfAvatars"></div>
             </div>
 
@@ -132,6 +133,8 @@
                 });
                 image.classList.add('selectedAvatar');
                 image.classList.remove('unselected');
+                let avat = document.getElementById('signUpavatar');
+                avat.value = image.src.substring(image.src.lastIndexOf('/') + 1);
             });
             container.appendChild(image);
         }
