@@ -230,6 +230,19 @@ window.addEventListener('beforeunload', function (e) {
         localStorage.setItem('isExit', 'true');
     }
 });
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.getElementsByClassName('card');
+    const audioPlayer = document.getElementById('audioPlayer');
+    cards.volume = 0.01;
+    cards.map(addEventListener('click', function (card) {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+        } else {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+        }
+    }));
+});
 </script>
   </body>
 </html>
