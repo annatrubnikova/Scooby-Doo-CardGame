@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.static('public'));
-app.use(express.static('sounds'));
 app.use(express.static('images'));
 app.use('/', express.static('views'));
 
@@ -32,26 +31,26 @@ const io = socketio(server);
 let games = {};
 
 const cards = [
-  { id: 1, attack: 4, defense: 2 },
-  { id: 2, attack: 3, defense: 3 },
-  { id: 3, attack: 4, defense: 1 },
-  { id: 4, attack: 2, defense: 2 },
-  { id: 5, attack: 1, defense: 3 },
-  { id: 6, attack: 3, defense: 2 },
-  { id: 7, attack: 2, defense: 1 },
-  { id: 8, attack: 4, defense: 3 },
-  { id: 9, attack: 3, defense: 1 },
-  { id: 10, attack: 2, defense: 3 },
-  { id: 11, attack: 4, defense: 2 },
-  { id: 12, attack: 3, defense: 3 },
-  { id: 13, attack: 1, defense: 1 },
-  { id: 14, attack: 2, defense: 2 },
-  { id: 15, attack: 4, defense: 3 },
-  { id: 16, attack: 3, defense: 1 },
-  { id: 17, attack: 2, defense: 3 },
-  { id: 18, attack: 4, defense: 1 },
-  { id: 19, attack: 1, defense: 2 },
-  { id: 20, attack: 3, defense: 2 },
+  { id: 1, attack: 4, defense: 2, coins: 3},
+  { id: 2, attack: 3, defense: 3, coins: 3 },
+  { id: 3, attack: 4, defense: 1, coins: 3 },
+  { id: 4, attack: 2, defense: 2, coins: 2 },
+  { id: 5, attack: 1, defense: 3, coins: 2 },
+  { id: 6, attack: 3, defense: 2, coins: 3 },
+  { id: 7, attack: 2, defense: 1, coins: 2 },
+  { id: 8, attack: 4, defense: 3, coins: 3 },
+  { id: 9, attack: 3, defense: 1, coins: 2 },
+  { id: 10, attack: 2, defense: 3, coins: 3 },
+  { id: 11, attack: 4, defense: 2, coins: 3 },
+  { id: 12, attack: 3, defense: 3, coins: 3 },
+  { id: 13, attack: 1, defense: 1, coins: 1 },
+  { id: 14, attack: 2, defense: 2, coins: 2 },
+  { id: 15, attack: 4, defense: 3, coins: 3 },
+  { id: 16, attack: 3, defense: 1, coins: 2 },
+  { id: 17, attack: 2, defense: 3, coins: 2 },
+  { id: 18, attack: 4, defense: 1, coins: 2 },
+  { id: 19, attack: 1, defense: 2, coins: 1 },
+  { id: 20, attack: 3, defense: 2, coins: 2 },
 ];
 
 function generateDeck() {
@@ -65,6 +64,15 @@ function generateDeck() {
   }
   return deck;
 }
+
+function countCoinsInDeck(deck) {
+  let totalCoins = 0;
+  for (let card of deck) {
+    totalCoins += card.coins;
+  }
+  return totalCoins;
+}
+
 
 function removeCardFromDeck(user, cardId) {
   const index = user.deck.findIndex(card => card.id === cardId);
@@ -153,8 +161,15 @@ io.on('connection', (sock) => {
       const player1Deck = generateDeck();
       const player2Deck = generateDeck();
 
+      const coinsInPlayer1Deck = countCoinsInDeck(player1Deck);
+      const coinsInPlayer2Deck = countCoinsInDeck(player2Deck);
+
+
       user1.emit('receive-deck', player1Deck);
       user2.emit('receive-deck', player2Deck);
+
+      user1.emit('receive-coins', coinsInPlayer1Deck);
+      user2.emit('receive-coins', coinsInPlayer2Deck );
 
       user1.deck = player1Deck;
       user2.deck = player2Deck;
@@ -179,17 +194,16 @@ io.on('connection', (sock) => {
       
       const handleCardSelection = (activeUser, opponentUser) => {
         activeUser.on('card-selected', (cardId) => {
+          let cardSend = getCardById(cardId);
           clearTimeout(activeUser.turnTimer);
 
           activeUser.emit('your-card-selected', cardId);
-          opponentUser.emit('opponent-card-selected', cardId);
+          opponentUser.emit('opponent-card-selected', cardSend);
           activeUser.emit('your-move', false);
           opponentUser.emit('your-move', true);
       
           removeCardFromDeck(opponentUser, cardId);  
-          console.log(cardId);
           const card = getCardById(cardId);
-          console.log(card);
           opponentUser.health -= card.attack;
           if (activeUser.health <= 5) {
             activeUser.health += card.defense;
@@ -239,14 +253,51 @@ sock.on('register-login', (login) => {
   sock.login = login;
 });
 
-  sock.on('disconnect', () => {
-    leaveChatRoom(sock);
-    // Remove user from the waiting queue if they are in it
-    const index = waitingQueue.indexOf(sock);
-    if (index > -1) {
+sock.on('disconnect', () => {
+  handleUserDisconnect(sock);
+});
+
+function handleUserDisconnect(sock) {
+  // Remove user from the waiting queue if they are in it
+  const index = waitingQueue.indexOf(sock);
+  if (index > -1) {
       waitingQueue.splice(index, 1);
+  }
+
+  const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
+  if (gameRoom) {
+    const game = games[gameRoom];
+    let opponentSocket = '';
+
+    if (game.user1.id === sock.id) {
+      opponentSocket = io.sockets.sockets.get(game.user2.id);
+    } else {
+      opponentSocket = io.sockets.sockets.get(game.user1.id);
     }
-  });
+    
+    if (opponentSocket && opponentSocket.connected) {
+      opponentSocket.emit('game-over', { result: 'win' });
+      sock.emit('game-over', { result: 'lose' });
+    } 
+
+    leaveChatRoom(opponentSocket);
+    leaveChatRoom(sock);
+    delete games[gameRoom];
+  }
+
+  sock.emit('redirect-to-home');
+}
+
+
+
+  // sock.on('disconnect', () => {
+  //   leaveChatRoom(sock);
+  //   // Remove user from the waiting queue if they are in it
+  //   const index = waitingQueue.indexOf(sock);
+  //   if (index > -1) {
+  //     waitingQueue.splice(index, 1);
+  //   }
+  // });
 
   sock.on('reconnect-request', (roomId) => {
     const game = games[roomId];
