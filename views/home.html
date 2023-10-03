@@ -62,5 +62,11 @@
         localStorage.clear();
         window.location.assign('/logout');
     }
+
+    let isExit = localStorage.getItem('isExit');
+    if (isExit == 'true') {    
+        localStorage.clear();
+        alert('Ви програли.');
+    }
 </script>
 </html>

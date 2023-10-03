@@ -4,7 +4,6 @@
     <title>card game</title>
     <link rel="icon" href="img/favicon.png">
     <link rel="stylesheet" href="zhopa.css">
-    <link rel="stylesheet" href="main.css">
   </head>
   <body>
     <!-- ЧАТ -->
@@ -19,6 +18,7 @@
 
     <div id="game-board">
       <div class="health-info">
+        <div id="coins-display"></div>
         <div>Здоров'я гравця </div><div id="player-health">20</div>
         <div>Здоров'я опонента </div><div id="opponent-health">20</div>
       </div>
@@ -36,7 +36,7 @@
           <!-- Тут будуть карти гравця -->
       </div>
     </div>
-    <audio id="audioPlayer" src="flipcard.mp3"></audio>
+
 
 
 
@@ -48,30 +48,10 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-    const cards = [
-  { id: 1, attack: 4, defense: 2 },
-  { id: 2, attack: 3, defense: 3 },
-  { id: 3, attack: 4, defense: 1 },
-  { id: 4, attack: 2, defense: 2 },
-  { id: 5, attack: 1, defense: 3 },
-  { id: 6, attack: 3, defense: 2 },
-  { id: 7, attack: 2, defense: 1 },
-  { id: 8, attack: 4, defense: 3 },
-  { id: 9, attack: 3, defense: 1 },
-  { id: 10, attack: 2, defense: 3 },
-  { id: 11, attack: 4, defense: 2 },
-  { id: 12, attack: 3, defense: 3 },
-  { id: 13, attack: 1, defense: 1 },
-  { id: 14, attack: 2, defense: 2 },
-  { id: 15, attack: 4, defense: 3 },
-  { id: 16, attack: 3, defense: 1 },
-  { id: 17, attack: 2, defense: 3 },
-  { id: 18, attack: 4, defense: 1 },
-  { id: 19, attack: 1, defense: 2 },
-  { id: 20, attack: 3, defense: 2 },
-];
-      let userLogin = localStorage.getItem('userLogin');
+       let userLogin = localStorage.getItem('userLogin');
+       localStorage.clear();
       const socket = io();
+
       let currentRoomId;
       socket.emit('register-login', userLogin);
       socket.emit('search-chat-partner');
@@ -80,6 +60,12 @@
         currentRoomId = roomId;
         document.getElementById("chat-room").style.display = "block";
         console.log(`Ви приєдналися до кімнати: ${roomId}`);
+      });
+
+      socket.on('receive-coins', (data) => {
+        userCoins = data;
+        const coinsCountElement = document.getElementById('coins-display');
+        coinsCountElement.textContent = "Монетки: " + data; // оновлюємо кількість монеток на інтерфейсі
       });
 
       socket.on('private-message', (messageData) => {
@@ -98,6 +84,7 @@
       });
       
       let mycards = [];
+      let userCoins  = '';
 
       socket.on('receive-deck', (deck) => {
         const playerCards = document.getElementById('player-cards');
@@ -108,11 +95,11 @@
           const cardElement = document.createElement('div');
           cardElement.classList.add('card');
           cardElement.setAttribute('id', `${card.id}`);
-          cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense}`;
+          cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
           cardElement.onclick = () => {
             socket.emit('card-selected', card.id);
             socket.emit('your-card-selected', card.id);
-            console.log("Card clicked!ууууууу");
+            console.log("Card clicked!");
             event.currentTarget.parentNode.removeChild(event.currentTarget);
           };
           playerCards.appendChild(cardElement);
@@ -128,6 +115,7 @@
 
 
 
+
 let opponentLogin = '';
 
 socket.on('opponent-info', (data) => {
@@ -140,37 +128,33 @@ socket.on('your-move', (isYourMove) => {
     if (isYourMove) {
         turnInfo.textContent = 'Ваш хід!';
         enableCardClicks();
-        // треба додати ???
     } else {
         turnInfo.textContent = `Хід ${opponentLogin}`; 
         disableCardClicks();
-        // не можна натискати на свої карти!!!!!!!!!!!
     }
 });
 
 
-socket.on('your-card-selected', (cardId) => {
-    console.log('Card ID:', cardId);    
-    console.log('Cards array:', mycards); 
+socket.on('your-card-selected', (cardId) => {  
     const centerArea = document.getElementById('game-table');
     const cardData = mycards.find(card => card.id == cardId); 
     const cardElement = document.createElement('div');
     cardElement.classList.add('card');
-    cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense}`; 
+    cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
+    let displayCoins = document.getElementById('coins-display');
+    userCoins -= cardData.coins;
+    displayCoins.textContent =  "Монетки: " + userCoins;
     centerArea.appendChild(cardElement);
 });
 
 let opponentCardsRemaining = 10;
 
-socket.on('opponent-card-selected', (cardId) => {
-    console.log('Card ID:', cardId);        
-    console.log('Cards array:', cards); 
+socket.on('opponent-card-selected', (cardOpponent) => {
+    console.log('Card:', cardOpponent);        
     const centerArea = document.getElementById('ggggg');
-    const card = cards.find(card => card.id == cardId); 
-
     const cardElement = document.createElement('div');
     cardElement.classList.add('opponent-card');
-    cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense}`; 
+    cardElement.textContent = `Attack: ${cardOpponent.attack} Defense: ${cardOpponent.defense} Coins: ${cardOpponent.coins}`; 
     centerArea.appendChild(cardElement);
 
     // Видаляємо "закриту" картку опонента
@@ -181,14 +165,6 @@ socket.on('opponent-card-selected', (cardId) => {
             cardBackElement.remove();
             opponentCardsRemaining--;
         }
-    }
-});
-
-socket.on('game-over', (data) => {
-    if (data.result === 'win') {
-        alert('Ви виграли!');
-    } else {
-        alert('Ви програли.');
     }
 });
 
@@ -230,27 +206,29 @@ function enableCardClicks() {
             socket.emit('card-selected', card.getAttribute('id'));
             socket.emit('your-card-selected', card.getAttribute('id'));
             console.log("Card clicked!");
-            console.log(card.getAttribute('id'));
             event.currentTarget.parentNode.removeChild(event.currentTarget);
         };
         card.classList.remove('disabled-card'); // Видаляємо деактивний клас з карти
     });
 }
+let isConnect = true;
 
-document.addEventListener('DOMContentLoaded', function () {
-    const cards = document.getElementsByClassName('card');
-    const audioPlayer = document.getElementById('audioPlayer');
-    cards.volume = 0.01;
-    cards.map(addEventListener('click', function (card) {
-        if (audioPlayer.paused) {
-            audioPlayer.play();
-        } else {
-            audioPlayer.pause();
-            audioPlayer.currentTime = 0;
-        }
-    }));
+socket.on('game-over', (data) => {
+    if (data.result === 'win') {
+        isConnect = false;
+        alert('Ви виграли!');
+    } else {
+        alert('Ви програли.');
+    }
 });
 
-    </script>
+window.addEventListener('beforeunload', function (e) {
+    if (isConnect) {
+        var confirmationMessage = 'Ви дійсно хочете вийти?';
+        e.returnValue = confirmationMessage;
+        localStorage.setItem('isExit', 'true');
+    }
+});
+</script>
   </body>
 </html>
