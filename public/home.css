@@ -131,3 +131,7 @@ body:nth-child(2) {
 .fullname, .email {
     align-items: flex-start;
 }
+
+.audioBtn {
+    padding: 1px 22px;
+}

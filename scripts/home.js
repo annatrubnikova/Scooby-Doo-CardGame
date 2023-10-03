@@ -25,14 +25,18 @@ if (isExit == 'true') {
 function stopMusic() {
     let audio = document.getElementById("audio");
     let volume = document.getElementById("volume");
+    let btnvolume = document.getElementById("btnvolume");
+    
     if(audio.volume == 0.01) {
          audio.volume = 0;
-         volume.classList.remove('fa-volume-off');
+         btnvolume.classList.remove("audioBtn");
+         volume.classList.remove('fa-volume-low');
          volume.classList.add('fa-volume-xmark');
     }
     else {
         audio.volume = 0.01;
-        volume.classList.add('fa-volume-off');
+        btnvolume.classList.add("audioBtn");
+        volume.classList.add('fa-volume-low');
         volume.classList.remove('fa-volume-xmark');
     }
 }
