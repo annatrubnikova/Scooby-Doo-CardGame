@@ -231,6 +231,10 @@ window.addEventListener('beforeunload', function (e) {
         localStorage.setItem('isExit', 'true');
     }
 });
+const cards = document.getElementsByClassName('card');
+    const audioPlayer = document.getElementById('audioPlayer');
+    cards.volume = 0.01;
+      
 document.addEventListener('DOMContentLoaded', function () {
     const cards = document.getElementsByClassName('card');
     const audioPlayer = document.getElementById('audioPlayer');
