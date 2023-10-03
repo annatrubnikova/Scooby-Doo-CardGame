@@ -65,7 +65,7 @@
 
     let isExit = localStorage.getItem('isExit');
     if (isExit == 'true') {    
-        localStorage.clear();
+        localStorage.removeItem('isExit');
         alert('Ви програли.');
     }
 </script>

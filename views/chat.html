@@ -51,7 +51,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
        let userLogin = localStorage.getItem('userLogin');
-       localStorage.clear();
+       //localStorage.clear();
       const socket = io();
 
       let currentRoomId;
@@ -96,6 +96,7 @@
         deck.forEach(card => {
           const cardElement = document.createElement('div');
           cardElement.classList.add('card');
+          cardElement.classList.add('mycard');
           cardElement.setAttribute('id', `${card.id}`);
           cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
           cardElement.onclick = () => {
@@ -124,17 +125,6 @@ socket.on('opponent-info', (data) => {
     opponentLogin = data.login;
 });
 
-
-socket.on('your-move', (isYourMove) => {
-    const turnInfo = document.getElementById('turn-info');
-    if (isYourMove) {
-        turnInfo.textContent = 'Ваш хід!';
-        enableCardClicks();
-    } else {
-        turnInfo.textContent = `Хід ${opponentLogin}`; 
-        disableCardClicks();
-    }
-});
 
 
 socket.on('your-card-selected', (cardId) => {  
@@ -180,10 +170,6 @@ socket.on('update-health', (data) => {
 });
 
 
-      // function searchChatPartner() {
-      //   socket.emit('search-chat-partner');
-      // }
-
       function sendPrivateMessage() {
         const messageInput = document.getElementById('message-input');
         const message = messageInput.value;
@@ -193,26 +179,91 @@ socket.on('update-health', (data) => {
         }
       }
 
-      function disableCardClicks() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        card.onclick = null; // Видаляємо обробник подій
-        card.classList.add('disabled-card'); // Додаємо клас для стилізації
+      socket.on('your-move', (isYourMove) => {
+    const turnInfo = document.getElementById('turn-info');
+    if (isYourMove) {
+        turnInfo.textContent = 'Ваш хід!';
+        enableCardClicks();
+    } else {
+        turnInfo.textContent = `Хід ${opponentLogin}`; 
+        disableCardClicks();
+    }
+});
+
+    function disableCardClicks() {
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        card.onclick = null; 
+        card.classList.add('disabled-card'); 
     });
 }
 
 function enableCardClicks() {
-    const cards = document.querySelectorAll('.card');
+    const cards = document.querySelectorAll('.mycard');
+    const audioPlayer = document.getElementById('audioPlayer');
+    cards.volume = 0.01;
+
     cards.forEach(card => {
-        card.onclick = () => {
+        card.onclick = (event) => {
+            if (audioPlayer.paused) {
+                audioPlayer.play().then(() => {
+                    console.log("Audio is playing!");
+                }).catch((error) => {
+                    console.error("Error playing the audio:", error);
+                });
+            } else {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+
             socket.emit('card-selected', card.getAttribute('id'));
             socket.emit('your-card-selected', card.getAttribute('id'));
             console.log("Card clicked!");
             event.currentTarget.parentNode.removeChild(event.currentTarget);
         };
-        card.classList.remove('disabled-card'); // Видаляємо деактивний клас з карти
+
+        // Видалення деактивованого класу з картки
+        card.classList.remove('disabled-card');
     });
 }
+
+
+
+// function enableCardClicks() {
+//     const cards = document.querySelectorAll('.mycard');
+//     const audioPlayer = document.getElementById('audioPlayer');
+//     cards.volume = 0.01;
+//     cards.forEach(card => {
+//         card.onclick = () => {
+//           if (audioPlayer.paused) {
+//               audioPlayer.play();
+//           } else {
+//             audioPlayer.pause();
+//             audioPlayer.currentTime = 0;
+//           }
+//             socket.emit('card-selected', card.getAttribute('id'));
+//             socket.emit('your-card-selected', card.getAttribute('id'));
+//             console.log("Card clicked!");
+//             event.currentTarget.parentNode.removeChild(event.currentTarget);
+//         };
+//         card.classList.remove('disabled-card'); // Видаляємо деактивний клас з карти
+//     });
+// }
+
+// document.addEventListener('DOMContentLoaded', function () {
+//         const cards = document.getElementsByClassName('mycard');
+//         const audioPlayer = document.getElementById('audioPlayer');
+//         cards.volume = 0.01;
+//         cards.map(addEventListener('click', function (card) {
+//         if (audioPlayer.paused) {
+//             audioPlayer.play();
+//         } else {
+//             audioPlayer.pause();
+//             audioPlayer.currentTime = 0;
+//         }
+//     }));
+// });
+
 let isConnect = true;
 
 socket.on('game-over', (data) => {
@@ -231,23 +282,7 @@ window.addEventListener('beforeunload', function (e) {
         localStorage.setItem('isExit', 'true');
     }
 });
-const cards = document.getElementsByClassName('card');
-    const audioPlayer = document.getElementById('audioPlayer');
-    cards.volume = 0.01;
-      
-document.addEventListener('DOMContentLoaded', function () {
-    const cards = document.getElementsByClassName('card');
-    const audioPlayer = document.getElementById('audioPlayer');
-    cards.volume = 0.01;
-    cards.map(addEventListener('click', function (card) {
-        if (audioPlayer.paused) {
-            audioPlayer.play();
-        } else {
-            audioPlayer.pause();
-            audioPlayer.currentTime = 0;
-        }
-    }));
-});
+
 </script>
   </body>
 </html>
