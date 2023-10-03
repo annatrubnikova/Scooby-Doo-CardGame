@@ -64,8 +64,9 @@
     }
 
     let isExit = localStorage.getItem('isExit');
-    if (isExit == 'true') {    
+    if (isExit == 'true') {  
         localStorage.removeItem('isExit');
+        window.location.href = '/lose-page';
         alert('Ви програли.');
     }
 </script>

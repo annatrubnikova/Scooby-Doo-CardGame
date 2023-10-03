@@ -92,7 +92,7 @@
         const playerCards = document.getElementById('player-cards');
         const opponentCards = document.getElementById('opponent-cards');
         mycards = deck;
-    /*// Відображення ваших карт
+    // Відображення ваших карт
         deck.forEach(card => {
           const cardElement = document.createElement('div');
           cardElement.classList.add('card');
@@ -106,29 +106,12 @@
             event.currentTarget.parentNode.removeChild(event.currentTarget);
           };
           playerCards.appendChild(cardElement);
-       });*/
-
-        // Відображення ваших карт
-        deck.forEach(card => {
-          const cardElement = document.createElement('img');
-          cardElement.classList.add('card');
-          cardElement.classList.add('mycard');
-          cardElement.setAttribute('id', `${card.id}`);
-          cardElement.src = `card${card.id}.png`;
-          cardElement.onclick = () => {
-            socket.emit('card-selected', card.id);
-            socket.emit('your-card-selected', card.id);
-            console.log("Card clicked!");
-            event.currentTarget.parentNode.removeChild(event.currentTarget);
-          };
-          playerCards.appendChild(cardElement);
        });
 
     // Створення 10 "закритих" карток для опонента
     for (let i = 0; i < 10; i++) {
-        const cardBackElement = document.createElement('img');
-        cardBackElement.src = 'back_card.png';
-        cardBackElement.classList.add('card', 'card-back', 'card-oppo');
+        const cardBackElement = document.createElement('div');
+        cardBackElement.classList.add('card', 'card-back');
         opponentCards.appendChild(cardBackElement);
     }
 });
@@ -147,11 +130,9 @@ socket.on('opponent-info', (data) => {
 socket.on('your-card-selected', (cardId) => {  
     const centerArea = document.getElementById('game-table');
     const cardData = mycards.find(card => card.id == cardId); 
-    //const cardElement = document.createElement('div');
-    const cardElement = document.createElement('img');
+    const cardElement = document.createElement('div');
     cardElement.classList.add('card');
-    //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
-    cardElement.src = `card${cardId}.png`;
+    cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
     let displayCoins = document.getElementById('coins-display');
     userCoins -= cardData.coins;
     displayCoins.textContent =  "Монетки: " + userCoins;
@@ -177,10 +158,6 @@ socket.on('opponent-card-selected', (cardOpponent) => {
             opponentCardsRemaining--;
         }
     }
-});
-
-socket.on('redirect-to-home', () => {
-    window.location.href = '/home';  
 });
 
 socket.on('update-health', (data) => {
@@ -283,24 +260,32 @@ function enableCardClicks() {
 //     }));
 // });
 
-let isConnect = true;
+let exitUser = 0;
 
 socket.on('game-over', (data) => {
     if (data.result === 'win') {
-        isConnect = false;
+        exitUser = 1;
         alert('Ви виграли!');
-    } else {
+        window.location.href = '/win-page';
+    } else if (data.result == 'lose') {
+        exitUser = 1;
         alert('Ви програли.');
+        window.location.href = '/lose-page';
+    } else if (data.result == 'goodbye') {
+      exitUser = 1;
+        window.location.href = '/home';
     }
 });
 
 window.addEventListener('beforeunload', function (e) {
-    if (isConnect) {
-        var confirmationMessage = 'Ви дійсно хочете вийти?';
-        e.returnValue = confirmationMessage;
-        localStorage.setItem('isExit', 'true');
-    }
+  if (exitUser == 0) { 
+    localStorage.setItem('isExit', 'true');
+    var message = 'Ви впевнені, що хочете покинути гру?';
+    e.returnValue = message; 
+    return message;
+  }
 });
+
 
 </script>
   </body>
