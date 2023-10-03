@@ -161,3 +161,9 @@ canvas {
   margin: 5px;
   cursor: pointer;
 }
+
+.card-oppo {
+  width: 75px;
+  height: 100px;
+  border: none;
+}

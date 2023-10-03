@@ -92,7 +92,23 @@
         const playerCards = document.getElementById('player-cards');
         const opponentCards = document.getElementById('opponent-cards');
         mycards = deck;
-    // Відображення ваших карт
+    /*// Відображення ваших карт
+        deck.forEach(card => {
+          const cardElement = document.createElement('div');
+          cardElement.classList.add('card');
+          cardElement.classList.add('mycard');
+          cardElement.setAttribute('id', `${card.id}`);
+          cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
+          cardElement.onclick = () => {
+            socket.emit('card-selected', card.id);
+            socket.emit('your-card-selected', card.id);
+            console.log("Card clicked!");
+            event.currentTarget.parentNode.removeChild(event.currentTarget);
+          };
+          playerCards.appendChild(cardElement);
+       });*/
+
+        // Відображення ваших карт
         deck.forEach(card => {
           const cardElement = document.createElement('div');
           cardElement.classList.add('card');
@@ -110,8 +126,9 @@
 
     // Створення 10 "закритих" карток для опонента
     for (let i = 0; i < 10; i++) {
-        const cardBackElement = document.createElement('div');
-        cardBackElement.classList.add('card', 'card-back');
+        const cardBackElement = document.createElement('img');
+        cardBackElement.src = 'back_card.png';
+        cardBackElement.classList.add('card', 'card-back', 'card-oppo');
         opponentCards.appendChild(cardBackElement);
     }
 });
