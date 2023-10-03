@@ -5,6 +5,7 @@
     <link rel="icon" href="img/favicon.png">
     <link rel="stylesheet" href="zhopa.css">
     <link rel="stylesheet" href="main.css">
+    <link rel="icon" href="logo.png">
   </head>
   <body>
     <!-- ЧАТ -->
@@ -136,6 +137,7 @@ socket.on('your-card-selected', (cardId) => {
   //const cardElement = document.createElement('div');
     const cardElement = document.createElement('img');
     cardElement.classList.add('card');
+    cardElement.classList.add('card-on-table');
       //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
     cardElement.src = `card${cardId}.png`;
     //cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
@@ -152,6 +154,7 @@ socket.on('opponent-card-selected', (cardOpponent) => {
     const centerArea = document.getElementById('ggggg');
     const cardElement = document.createElement('img');
     cardElement.classList.add('opponent-card');
+    cardElement.classList.add('card-on-table');
     cardElement.src = `card${cardOpponent.id}.png`;
     //cardElement.textContent = `Attack: ${cardOpponent.attack} Defense: ${cardOpponent.defense} Coins: ${cardOpponent.coins}`; 
     centerArea.appendChild(cardElement);

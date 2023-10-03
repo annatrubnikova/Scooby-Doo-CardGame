@@ -161,7 +161,7 @@ canvas {
   cursor: pointer;
 }
 
-.card-oppo, .card-on-table {
+.card-oppo {
   width: 95px;
   height: 120px;
   border: none;
@@ -170,5 +170,11 @@ canvas {
 .mycard {
   width: 105px;
   height: 133px;
+  border: none;
+}
+
+.card-on-table{
+  width: 125px;
+  height: 158px;
   border: none;
 }
