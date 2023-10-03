@@ -16,6 +16,7 @@ app.use(express.static('images/card'));
 app.use(express.static('public'));
 app.use(express.static('sounds'));
 app.use(express.static('images'));
+app.use(express.static('scripts'));
 app.use('/', express.static('views'));
 
 app.use((req, res, next) => {
