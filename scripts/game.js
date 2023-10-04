@@ -9,6 +9,7 @@ socket.emit('search-chat-partner');
 
 socket.on('chat-room-assigned', (roomId) => {
  currentRoomId = roomId;
+ document.getElementById("chatBtn").disabled = false;
  document.getElementById("chat-room").style.display = "flex";
 });
 
@@ -19,14 +20,17 @@ socket.on('receive-coins', (data) => {
 });
 
 socket.on('private-message', (messageData) => {
- const messagesList = document.getElementById('chat-messages');
- const messageItem = document.createElement('li');
+  const messagesList = document.getElementById('chatPopupMessages');
+  const messageItem = document.createElement('div');
 
  if (messageData.senderId === socket.id) {
-   messageItem.classList.add('my-message');
+  messageItem.classList.add('my-message', 'messageDiv');
    messageItem.textContent = "Me: " + messageData.text; 
- } else {
-   messageItem.classList.add('their-message');
+  } else {
+    if(document.getElementById("chatPopup").classList.contains('hiddenChat')) {
+     document.getElementById("chatBtn").classList.add('chatBtnPulse');
+    } else document.getElementById("chatBtn").classList.remove('chatBtnPulse');
+    messageItem.classList.add('their-message', 'messageDiv');
    messageItem.textContent = messageData.senderLogin + ": " + messageData.text;
  }
  messagesList.scrollTop = messagesList.scrollHeight + 200;
@@ -238,9 +242,22 @@ return message;
 }
 });
 
-let textarea = document.getElementById('chat-messages');
+let textarea = document.getElementById('chatPopupMessages');
 textarea.scrollTop = textarea.scrollHeight;
 
 document.getElementById('draw-button').addEventListener('click', function() {
   socket.emit('player-surrendered');
 });
+
+function showHideChat() {
+  document.getElementById("chatBtn").classList.toggle('chatBtnActive');
+  document.getElementById("chatPopup").classList.toggle('hiddenChat');
+  document.getElementById("chatBtn").classList.remove('chatBtnPulse');
+}
+
+function handleKeyPress(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("sendMessageBtn").click();
+  }
+}

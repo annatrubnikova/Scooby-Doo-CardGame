@@ -11,11 +11,11 @@
   <body>
     <!-- ЧАТ -->
     <!-- <button onclick="searchChatPartner()">Знайти співрозмовника</button> -->
-    <div id="chat-room" style="display: none;">
+    <!-- <div id="chat-room" style="display: none;">
         <ul id="chat-messages"></ul>
         <input type="text" id="message-input">
         <button onclick="sendPrivateMessage()">Відправити</button>
-    </div>
+    </div> -->
 
     <!-- СТІЛ ДЛЯ ГРИ В КАРТИ  -->
 
@@ -46,6 +46,17 @@
           <!-- Тут будуть карти гравця -->
       </div>
     </div>
+
+    
+    <button id="chatBtn" onclick="showHideChat()" disabled="true"><i class="fa-solid fa-comments"></i></button>
+    <div id="chatPopup" class="hiddenChat">
+      <div id="chatPopupMessages"></div>
+      <div>
+        <input type="text" id="message-input" onkeydown="handleKeyPress(event)" placeholder="Enter your message here">
+        <button onclick="sendPrivateMessage()" id="sendMessageBtn"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+
     <audio id="audioPlayer" src="flipcard.mp3"></audio>
     
     <script src="/socket.io/socket.io.js"></script>
