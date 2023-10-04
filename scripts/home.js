@@ -7,19 +7,21 @@ function hideUserInfo () {
 }
 
 let userLogin = document.querySelector('.loginText').innerText;
-console.log(userLogin);
+let imageElement = document.querySelector('.avatarValue').src;
+console.log(imageElement);
 localStorage.setItem('userLogin', userLogin);
-
+localStorage.setItem('userAvatar', imageElement);
 function logOut() {
     localStorage.clear();
     window.location.assign('/logout');
 }
 
 let isExit = localStorage.getItem('isExit');
+console.log(isExit);
 if (isExit == 'true') {  
     localStorage.removeItem('isExit');
     window.location.href = '/lose-page';
-    alert('Ви програли.');
+    alert('You lost. Try another game!');
 }
 
 function stopMusic() {
