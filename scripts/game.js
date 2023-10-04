@@ -10,7 +10,6 @@ socket.emit('search-chat-partner');
 socket.on('chat-room-assigned', (roomId) => {
  currentRoomId = roomId;
  document.getElementById("chatBtn").disabled = false;
- document.getElementById("chat-room").style.display = "flex";
 });
 
 socket.on('receive-coins', (data) => {
@@ -65,8 +64,8 @@ socket.on('receive-deck', (deck) => {
   myImg.classList.add('avatarClass'); 
   oppImg.classList.add('avatarClass');
 
-  myAvatarDiv.appendChild(myImg);
-  oppAvatarDiv.appendChild(oppImg);
+  myAvatarDiv.prepend(myImg);
+  oppAvatarDiv.prepend(oppImg);
 
   mycards = deck;
 // Відображення ваших карт
@@ -155,9 +154,11 @@ const turnInfo = document.getElementById('turn-info');
 if (isYourMove) {
  turnInfo.textContent = 'Your move!';
  enableCardClicks();
+ runtimer("progress-bar1", "progress-bar2");
 } else {
  turnInfo.textContent = `${opponentLogin}'s move`; 
  disableCardClicks();
+ runtimer("progress-bar2", "progress-bar1");
 }
 });
 
@@ -260,4 +261,35 @@ function handleKeyPress(event) {
     event.preventDefault();
     document.getElementById("sendMessageBtn").click();
   }
+}
+
+function runtimer(id, anotherid) {
+  document.getElementById("progress-container1").style.display = "block";
+  document.getElementById("progress-container2").style.display = "block";
+  let timeLeft = 13; 
+  if (window.interval) {
+    clearInterval(window.interval);
+  }
+  
+  function updateProgressBar() {
+    const progressBar = document.getElementById(id);
+    const anotherProgressBar = document.getElementById(anotherid);
+  
+    anotherProgressBar.style.width = 0;
+    
+    const percentage = (timeLeft / 13) * 100;
+    progressBar.style.width = percentage + '%';
+  }
+
+  function countdown() {
+    updateProgressBar();
+
+    if (timeLeft === 0) {
+      clearInterval(window.interval);
+    } else {
+      timeLeft--;
+    }
+  }
+
+  window.interval = setInterval(countdown, 1000);
 }

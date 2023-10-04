@@ -191,9 +191,16 @@ canvas {
   top: 57%;
 }
 
-.my-avatar {
+.my-avatar, .opp-avatar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: absolute;
   left: 35px;
+  width: 10%;
+} 
+
+.my-avatar {
   top: 49%;
 }
 
@@ -204,8 +211,6 @@ canvas {
 }
 
 .opp-avatar {
-  position: absolute;
-  left: 35px;
   top: 30%;
 }
 
@@ -385,4 +390,20 @@ input:focus::placeholder {
   transform: scale(0.95);
   box-shadow: 0 0 0 0 rgb(255, 77, 119, 0);
 }
+}
+
+#progress-container1, #progress-container2 {
+  width: 50%;
+  height: 20px;
+  background-color: white;
+  border: 1px solid #a257f8;
+  border-radius: 20px;
+  display: none;
+  margin-left: 10px;
+}
+#progress-bar1, #progress-bar2  {
+  height: 100%;
+  background-color: #a257f8;
+  transition: width 1s linear;
+  border-radius: 20px;
 }
