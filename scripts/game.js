@@ -1,47 +1,53 @@
 let userLogin = localStorage.getItem('userLogin');
-//localStorage.clear();
 let userAvatar = localStorage.getItem('userAvatar')
 const socket = io();
+document.getElementById("searchingModal").style.display = "block";
 
 let currentRoomId;
 socket.emit('register-login', {login: userLogin, avatar: userAvatar});
 socket.emit('search-chat-partner');
 
+// chat
 socket.on('chat-room-assigned', (roomId) => {
- currentRoomId = roomId;
- document.getElementById("chatBtn").disabled = false;
-});
-
-socket.on('receive-coins', (data) => {
- userCoins = data;
- const coinsCountElement = document.getElementById('coins-display');
- coinsCountElement.textContent = "Coins: " + data; // оновлюємо кількість монеток на інтерфейсі
+  document.getElementById("searchingModal").style.display = "none";
+  currentRoomId = roomId;
+  document.getElementById("chatBtn").disabled = false;
 });
 
 socket.on('private-message', (messageData) => {
   const messagesList = document.getElementById('chatPopupMessages');
   const messageItem = document.createElement('div');
-
- if (messageData.senderId === socket.id) {
-  messageItem.classList.add('my-message', 'messageDiv');
-   messageItem.textContent = "Me: " + messageData.text; 
+  
+  if (messageData.senderId === socket.id) {
+    messageItem.classList.add('my-message', 'messageDiv');
+    messageItem.textContent = "Me: " + messageData.text; 
   } else {
     if(document.getElementById("chatPopup").classList.contains('hiddenChat')) {
-     document.getElementById("chatBtn").classList.add('chatBtnPulse');
+      document.getElementById("chatBtn").classList.add('chatBtnPulse');
     } else document.getElementById("chatBtn").classList.remove('chatBtnPulse');
     messageItem.classList.add('their-message', 'messageDiv');
-   messageItem.textContent = messageData.senderLogin + ": " + messageData.text;
- }
- messagesList.scrollTop = messagesList.scrollHeight + 200;
- //messagesList.style.height = +messagesList.style.height + 30 + "px";
- messagesList.appendChild(messageItem);
+    messageItem.textContent = messageData.senderLogin + ": " + messageData.text;
+  }
+  messagesList.scrollTop = messagesList.scrollHeight + 200;
+  //messagesList.style.height = +messagesList.style.height + 30 + "px";
+  messagesList.appendChild(messageItem);
 });
+
+// game
+socket.on('receive-coins', (data) => {
+  userCoins = data;
+  const coinsCountElement = document.getElementById('coins-display');
+  coinsCountElement.textContent = "Coins: " + data; 
+});
+
 let opponentLogin = '';
-let opponentAvatar
+let opponentAvatar = '';
+
 socket.on('opponent-info', (data) => {
   opponentLogin = data.login;
   opponentAvatar = data.avatar;
 });
+
 let mycards = [];
 let userCoins  = '';
 
@@ -68,179 +74,183 @@ socket.on('receive-deck', (deck) => {
   oppAvatarDiv.prepend(oppImg);
 
   mycards = deck;
-// Відображення ваших карт
- deck.forEach(card => {
-   const cardElement = document.createElement('img');
-   cardElement.classList.add('card');
-   cardElement.classList.add('mycard');
-   cardElement.setAttribute('id', `${card.id}`);
-   cardElement.src = `card${card.id}.png`;
-   //cardElement.textContent = `Attack: ${card.attack} Defense: ${card.defense} Coins: ${card.coins}`;
-   cardElement.onclick = () => {
-     socket.emit('card-selected', card.id);
-     socket.emit('your-card-selected', card.id);
-     event.currentTarget.parentNode.removeChild(event.currentTarget);
-   };
-   playerCards.appendChild(cardElement);
-});
 
-// Створення 10 "закритих" карток для опонента
-for (let i = 0; i < 10; i++) {
- const cardBackElement = document.createElement('img');
- cardBackElement.src = 'back_card.png';
- cardBackElement.classList.add('card', 'card-back', 'card-oppo');
- opponentCards.appendChild(cardBackElement);
-}
+  deck.forEach(card => {
+    const cardElement = document.createElement('img');
+    cardElement.classList.add('card');
+    cardElement.classList.add('mycard');
+    cardElement.setAttribute('id', `${card.id}`);
+    cardElement.src = `card${card.id}.png`;
+    cardElement.onclick = () => {
+      socket.emit('card-selected', card.id);
+      socket.emit('your-card-selected', card.id);
+      event.currentTarget.parentNode.removeChild(event.currentTarget);
+    };
+    playerCards.appendChild(cardElement);
+  });
+
+  for (let i = 0; i < 10; i++) {
+    const cardBackElement = document.createElement('img');
+    cardBackElement.src = 'back_card.png';
+    cardBackElement.classList.add('card', 'card-back', 'card-oppo');
+    opponentCards.appendChild(cardBackElement);
+  }
 });
 
 
 
 socket.on('your-card-selected', (cardId) => {  
-const centerArea = document.getElementById('game-table');
-const cardData = mycards.find(card => card.id == cardId); 
+  const centerArea = document.getElementById('game-table');
+  const cardData = mycards.find(card => card.id == cardId); 
 
-//const cardElement = document.createElement('div');
-const cardElement = document.createElement('img');
-cardElement.classList.add('card');
-cardElement.classList.add('card-on-table');
-//cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
-cardElement.src = `card${cardId}.png`;
-//cardElement.textContent = `Attack: ${cardData.attack} Defense: ${cardData.defense} Coins ${cardData.coins}`; 
-let displayCoins = document.getElementById('coins-display');
-userCoins -= cardData.coins;
-displayCoins.textContent =  "Coins: " + userCoins;
-centerArea.appendChild(cardElement);
+  const cardElement = document.createElement('img');
+  cardElement.classList.add('card');
+  cardElement.classList.add('card-on-table');
+
+  cardElement.src = `card${cardId}.png`;
+
+  let displayCoins = document.getElementById('coins-display');
+  userCoins -= cardData.coins;
+  displayCoins.textContent =  "Coins: " + userCoins;
+  centerArea.appendChild(cardElement);
 });
 
 let opponentCardsRemaining = 10;
 
 socket.on('opponent-card-selected', (cardOpponent) => {    
-const centerArea = document.getElementById('ggggg');
-const cardElement = document.createElement('img');
-cardElement.classList.add('opponent-card');
-cardElement.classList.add('card-on-table');
-cardElement.src = `card${cardOpponent.id}.png`;
-//cardElement.textContent = `Attack: ${cardOpponent.attack} Defense: ${cardOpponent.defense} Coins: ${cardOpponent.coins}`; 
-centerArea.appendChild(cardElement);
+  const centerArea = document.getElementById('ggggg');
+  const cardElement = document.createElement('img');
+  cardElement.classList.add('opponent-card');
+  cardElement.classList.add('card-on-table');
+  cardElement.src = `card${cardOpponent.id}.png`;
 
-// Видаляємо "закриту" картку опонента
-if (opponentCardsRemaining > 0) {
- const opponentCards = document.getElementById('opponent-cards');
- const cardBackElement = opponentCards.getElementsByClassName('card-back')[0];
- if (cardBackElement) {
-     cardBackElement.remove();
-     opponentCardsRemaining--;
- }
-}
+  centerArea.appendChild(cardElement);
+
+  if (opponentCardsRemaining > 0) {
+    const opponentCards = document.getElementById('opponent-cards');
+    const cardBackElement = opponentCards.getElementsByClassName('card-back')[0];
+    if (cardBackElement) {
+      cardBackElement.remove();
+      opponentCardsRemaining--;
+    }
+  }
 });
 
 socket.on('update-health', (data) => {
-document.getElementById('player-health').textContent = `Your health: ${data.playerHealth}`;
-document.getElementById('opponent-health').textContent = `${opponentLogin}'s health: ${data.opponentHealth}`;
+  document.getElementById('player-health').textContent = `Your health: ${data.playerHealth}`;
+  document.getElementById('opponent-health').textContent = `${opponentLogin}'s health: ${data.opponentHealth}`;
 });
 
 
 function sendPrivateMessage() {
- const messageInput = document.getElementById('message-input');
- const message = messageInput.value;
- if (message) {
-   socket.emit('send-private-message', currentRoomId, message);
-   messageInput.value = "";
- }
+  const messageInput = document.getElementById('message-input');
+  const message = messageInput.value;
+  if (message) {
+    socket.emit('send-private-message', currentRoomId, message);
+    messageInput.value = "";
+  }
 }
 
 socket.on('your-move', (isYourMove) => {
-const turnInfo = document.getElementById('turn-info');
-if (isYourMove) {
- turnInfo.textContent = 'Your move!';
- enableCardClicks();
- runtimer("progress-bar1", "progress-bar2");
-} else {
- turnInfo.textContent = `${opponentLogin}'s move`; 
- disableCardClicks();
- runtimer("progress-bar2", "progress-bar1");
-}
+  const turnInfo = document.getElementById('turn-info');
+  if (isYourMove) {
+    turnInfo.textContent = 'Your move!';
+    enableCardClicks();
+    runtimer("progress-bar1", "progress-bar2");
+  } else {
+    turnInfo.textContent = `${opponentLogin}'s move`; 
+    disableCardClicks();
+    runtimer("progress-bar2", "progress-bar1");
+  }
 });
 
 function disableCardClicks() {
-const cards = document.querySelectorAll('.card');
-cards.forEach(card => {
- card.onclick = null; 
- card.classList.add('disabled-card'); 
-});
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    card.onclick = null; 
+    card.classList.add('disabled-card'); 
+  });
 }
 
 function enableCardClicks() {
-const cards = document.querySelectorAll('.mycard');
-const audioPlayer = document.getElementById('audioPlayer');
-cards.volume = 0.01;
+  const cards = document.querySelectorAll('.mycard');
+  const audioPlayer = document.getElementById('audioPlayer');
+  cards.volume = 0.01;
 
-cards.forEach(card => {
- card.onclick = (event) => {
-     if (audioPlayer.paused) {
-         audioPlayer.play().then(() => {
-             console.log("Audio is playing!");
-         }).catch((error) => {
-             console.error("Error playing the audio:", error);
-         });
-     } else {
-         audioPlayer.pause();
-         audioPlayer.currentTime = 0;
-     }
-
-     socket.emit('card-selected', card.getAttribute('id'));
-     socket.emit('your-card-selected', card.getAttribute('id'));
-     event.currentTarget.parentNode.removeChild(event.currentTarget);
- };
-
- card.classList.remove('disabled-card');
-});
+  cards.forEach(card => {
+    card.onclick = (event) => {
+      if (audioPlayer.paused) {
+        audioPlayer.play().then(() => {
+          console.log("Audio is playing!");
+        }).catch((error) => {
+          console.error("Error playing the audio:", error);
+        });
+      } else {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+      }
+      socket.emit('card-selected', card.getAttribute('id'));
+      socket.emit('your-card-selected', card.getAttribute('id'));
+      event.currentTarget.parentNode.removeChild(event.currentTarget);
+    };
+    
+    card.classList.remove('disabled-card');
+  });
 }
 
 
 let exitUser = 0;
 
 socket.on('game-over', (data) => {
+  const showModal = (text) => {
+    document.getElementById('modalText').textContent = text; 
+    document.querySelector('.modal').style.display = 'block';
+    setTimeout(() => {
+      document.querySelector('.modal').style.display = 'none';
+      redirectToPage();
+    }, 10000);
+  }
+
+  const redirectToPage = () => {
+    if (data.result === 'win') {
+      window.location.href = '/win-page';
+    } else if (data.result == 'lose') {
+      window.location.href = '/lose-page';
+    } else if (data.result == 'draw') {
+      window.location.href = '/home';
+    }
+  }
+  
   if (data.result === 'win') {
-      exitUser = 1;
-      const oppAvatar = document.querySelector('.opp-avatar img');
-     document.querySelector('.opp-health').textContent = '';
-      if (oppAvatar) oppAvatar.style.visibility = 'hidden';
+    exitUser = 1;
+    const oppAvatar = document.querySelector('.opp-avatar img');
+    document.querySelector('.opp-health').textContent = '';
+    if (oppAvatar) oppAvatar.style.visibility = 'hidden';
+    showModal('You won!');
   } else if (data.result == 'lose') {
-      exitUser = 1;
-      const myAvatar = document.querySelector('.my-avatar img');
-      document.querySelector('.my-health').textContent = '';
-      document.getElementById('coins-display').textContent = '';
-      if (myAvatar) myAvatar.style.visibility = 'hidden';
+    exitUser = 1;
+    const myAvatar = document.querySelector('.my-avatar img');
+    document.querySelector('.my-health').textContent = '';
+    document.getElementById('coins-display').textContent = '';
+    if (myAvatar) myAvatar.style.visibility = 'hidden';
+    showModal('You lost. Try another game!');
   } else if (data.result == 'goodbye') {
     exitUser = 1;
     window.location.href = '/home';
   } else if (data.result == 'draw') {
     exitUser = 1;
-    alert('A draw is declared.');
-    window.location.href = '/home';
+    showModal('A draw is declared.');
   }
-  
-  // Затримаємо відображення повідомлення та перенаправлення
-  setTimeout(() => {
-      if (data.result === 'win') {
-          alert('You won!');
-          window.location.href = '/win-page';
-      } else if (data.result == 'lose') {
-          alert('You lost. Try another game!');
-          window.location.href = '/lose-page';
-      }
-  }, 3000);
 });
 
 
 window.addEventListener('beforeunload', function (e) {
-if (exitUser == 0) { 
-localStorage.setItem('isExit', 'true');
-var message = 'Are you sure you want to quit the game?';
-e.returnValue = message; 
-return message;
-}
+  if (exitUser == 0) { 
+    localStorage.setItem('isExit', 'true');
+    let message = 'Are you sure you want to quit the game?';
+    e.returnValue = message; 
+    return message;
+  }
 });
 
 let textarea = document.getElementById('chatPopupMessages');

@@ -2,6 +2,18 @@ function showUserInfo () {
     document.getElementById("userInfo").style.display='flex';
 }
 
+function showConfirm() {
+    document.getElementById('customConfirm').style.display = 'block';
+}
+
+function hideConfirm() {
+    document.getElementById('customConfirm').style.display = 'none';
+}
+
+function submitForm() {
+    document.getElementById('deleteAccountForm').submit();
+}
+
 function hideUserInfo () {
     document.getElementById("userInfo").style.display='none';
 }
