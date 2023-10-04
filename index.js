@@ -82,7 +82,7 @@ function countCoinsInDeck(deck) {
 
 
 function removeCardFromDeck(user, cardId) {
-  const index = user.deck.findIndex(card => card.id === cardId);
+  const index = user.deck.findIndex(card => card.id == parseInt(cardId));
   if (index !== -1) {
       user.deck.splice(index, 1);
   }
@@ -204,7 +204,8 @@ io.on('connection', (sock) => {
           activeUser.emit('your-move', false);
           opponentUser.emit('your-move', true);
       
-          removeCardFromDeck(opponentUser, cardId);  
+          removeCardFromDeck(activeUser, cardId);  
+
           const card = getCardById(cardId);
           opponentUser.health -= card.attack;
           if (activeUser.health < 5) {
@@ -342,8 +343,6 @@ function getCardById(cardId) {
 }
 
 function areResourcesExhausted(user) {
-  console.log(user.deck.length)
-  console.log(countCoinsInDeck(user.deck));
   return user.deck.length == 0 && countCoinsInDeck(user.deck) == 0;
 }
 
