@@ -33,26 +33,31 @@ const io = socketio(server);
 let games = {};
 
 const cards = [
-  { id: 1, attack: 4, defense: 2, coins: 3},
+  { id: 1, attack: 1, defense: 2, coins: 1},
   { id: 2, attack: 3, defense: 3, coins: 3 },
-  { id: 3, attack: 4, defense: 1, coins: 3 },
-  { id: 4, attack: 2, defense: 2, coins: 2 },
-  { id: 5, attack: 1, defense: 3, coins: 2 },
-  { id: 6, attack: 3, defense: 2, coins: 3 },
-  { id: 7, attack: 2, defense: 1, coins: 2 },
-  { id: 8, attack: 4, defense: 3, coins: 3 },
-  { id: 9, attack: 3, defense: 1, coins: 2 },
-  { id: 10, attack: 2, defense: 3, coins: 3 },
-  { id: 11, attack: 4, defense: 2, coins: 3 },
-  { id: 12, attack: 3, defense: 3, coins: 3 },
-  { id: 13, attack: 1, defense: 1, coins: 1 },
-  { id: 14, attack: 2, defense: 2, coins: 2 },
-  { id: 15, attack: 4, defense: 3, coins: 3 },
-  { id: 16, attack: 3, defense: 1, coins: 2 },
-  { id: 17, attack: 2, defense: 3, coins: 2 },
-  { id: 18, attack: 4, defense: 1, coins: 2 },
-  { id: 19, attack: 1, defense: 2, coins: 1 },
-  { id: 20, attack: 3, defense: 2, coins: 2 },
+  { id: 3, attack: 4, defense: 3, coins: 3 },
+  { id: 4, attack: 4, defense: 2, coins: 2 },
+  { id: 5, attack: 3, defense: 2, coins: 2 },
+  { id: 6, attack: 3, defense: 3, coins: 3 },
+  { id: 7, attack: 4, defense: 1, coins: 3 },
+  { id: 8, attack: 2, defense: 2, coins: 2 },
+  { id: 9, attack: 4, defense: 3, coins: 3 },
+  { id: 10, attack: 1, defense: 3, coins: 2 },
+  { id: 11, attack: 3, defense: 2, coins: 3 },
+  { id: 12, attack: 2, defense: 1, coins: 2 },
+  { id: 13, attack: 2, defense: 3, coins: 2 },
+  { id: 14, attack: 3, defense: 1, coins: 2 },
+  { id: 15, attack: 2, defense: 3, coins: 3 },
+  { id: 16, attack: 4, defense: 2, coins: 3 },
+  { id: 17, attack: 4, defense: 2, coins: 3 },
+  { id: 18, attack: 1, defense: 2, coins: 1 },
+  { id: 19, attack: 1, defense: 1, coins: 1 },
+  { id: 20, attack: 2, defense: 2, coins: 2 },
+  { id: 21, attack: 4, defense: 1, coins: 3 },
+  { id: 22, attack: 4, defense: 3, coins: 3 },
+  { id: 23, attack: 3, defense: 1, coins: 2 },
+  { id: 24, attack: 2, defense: 3, coins: 2 },
+  { id: 25, attack: 4, defense: 1, coins: 2 },
 ];
 
 function generateDeck() {
@@ -163,6 +168,8 @@ io.on('connection', (sock) => {
       const coinsInPlayer1Deck = countCoinsInDeck(player1Deck);
       const coinsInPlayer2Deck = countCoinsInDeck(player2Deck);
 
+      user1.emit('opponent-info', { login: user2.login, avatar: user2.avatar });
+      user2.emit('opponent-info', { login: user1.login, avatar: user1.avatar });
 
       user1.emit('receive-deck', player1Deck);
       user2.emit('receive-deck', player2Deck);
@@ -172,10 +179,6 @@ io.on('connection', (sock) => {
 
       user1.deck = player1Deck;
       user2.deck = player2Deck;
-
-      
-      user1.emit('opponent-info', { login: user2.login });
-      user2.emit('opponent-info', { login: user1.login });
 
       const firstMover = Math.random() < 0.5 ? 'user1' : 'user2';
 
@@ -204,9 +207,13 @@ io.on('connection', (sock) => {
           removeCardFromDeck(opponentUser, cardId);  
           const card = getCardById(cardId);
           opponentUser.health -= card.attack;
-          if (activeUser.health <= 5) {
+          if (activeUser.health < 5) {
             activeUser.health += card.defense;
           }
+
+          activeUser.emit('update-health', { playerHealth: activeUser.health, opponentHealth: opponentUser.health });
+          opponentUser.emit('update-health', { playerHealth: opponentUser.health, opponentHealth: activeUser.health });
+          
           
           if (opponentUser.health <= 0) {
             activeUser.emit('game-over', { result: 'win' });
@@ -223,9 +230,14 @@ io.on('connection', (sock) => {
           leaveChatRoom(opponentUser);
           return;
       }
-          activeUser.emit('update-health', { playerHealth: activeUser.health, opponentHealth: opponentUser.health });
-          opponentUser.emit('update-health', { playerHealth: opponentUser.health, opponentHealth: activeUser.health });
-          
+      if (areResourcesExhausted(activeUser) && areResourcesExhausted(opponentUser)) {
+        console.log("HIIIIIIIIII");
+        activeUser.emit('game-over', { result: 'draw' });
+        opponentUser.emit('game-over', { result: 'draw' });
+        leaveChatRoom(activeUser);
+        leaveChatRoom(opponentUser);
+        return;
+      }
           games[roomId].user1 = { ...activeUser };
           games[roomId].user2 = { ...opponentUser };
 
@@ -239,6 +251,28 @@ io.on('connection', (sock) => {
   
   });
 
+  sock.on('player-surrendered', () => {
+    const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
+    if (gameRoom) {
+        const game = games[gameRoom];
+        let opponentSocket = '';
+
+        if (game.user1.id === sock.id) {
+            opponentSocket = io.sockets.sockets.get(game.user2.id);
+        } else {
+            opponentSocket = io.sockets.sockets.get(game.user1.id);
+        }
+        sock.emit('game-over', { result: 'lose' });
+
+        if (opponentSocket && opponentSocket.connected) {
+            opponentSocket.emit('game-over', { result: 'win' });
+        }
+
+        leaveChatRoom(sock);
+        leaveChatRoom(opponentSocket);
+    }
+});
+
   sock.on('send-private-message', (roomId, message) => {
     io.to(roomId).emit('private-message', {
         senderId: sock.id,
@@ -247,9 +281,11 @@ io.on('connection', (sock) => {
     });
 });
 
-sock.on('register-login', (login) => {
-  console.log(`User ${sock.id} set login as: ${login}`);
-  sock.login = login;
+sock.on('register-login', (data) => {
+  console.log(`User ${sock.id} set login as: ${data.login}`);
+  console.log(`User ${sock.id} set avatar as: ${data.avatar}`);
+  sock.login = data.login;
+  sock.avatar = data.avatar;
 });
 
 sock.on('disconnect', () => {
@@ -303,6 +339,12 @@ function leaveChatRoom(sock) {
 
 function getCardById(cardId) {
   return cards.find(card => card.id == cardId);
+}
+
+function areResourcesExhausted(user) {
+  console.log(user.deck.length)
+  console.log(countCoinsInDeck(user.deck));
+  return user.deck.length == 0 && countCoinsInDeck(user.deck) == 0;
 }
 
 server.on('error', (err) => {
