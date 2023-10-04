@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="zhopa.css">
     <link rel="stylesheet" href="main.css">
     <link rel="icon" href="logo.png">
+    <script src="https://kit.fontawesome.com/63fb3be0e9.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <!-- ЧАТ -->
@@ -21,8 +22,12 @@
     <div id="game-board">
       <div class="health-info">
         <div id="coins-display"></div>
-        <div id="my-health">Здоров'я гравця <div id="player-health">20</div></div>
-        <div id="opp-health">Здоров'я опонента <div id="opponent-health">20</div></div>
+        <!-- Аватра мій -->
+        <div class="my-avatar"></div>
+        <div class="my-health" id="player-health"></div>
+        <!-- аватар опонента -->
+        <div class="opp-avatar"></div>
+        <div class="opp-health" id="opponent-health"></div>
       </div>
       <div id="opponent-cards" class="card-row">
           <!-- Тут будуть карти опонента (тильний бік) -->
@@ -33,6 +38,9 @@
       </div>
       <div id="game-table">
           <!-- my card -->
+      </div>
+      <div id="draw-button"> 
+        <!-- <button onclick="logOut()" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button> -->
       </div>
       <div id="player-cards" class="card-row">
           <!-- Тут будуть карти гравця -->
