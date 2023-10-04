@@ -12,6 +12,14 @@
     <script src="https://kit.fontawesome.com/63fb3be0e9.js" crossorigin="anonymous"></script>
 </head>
 <body>
+    <!-- Вневниться в тому що дійсно буде видалено аккаунт -->
+    <div class="custom-confirm" id="customConfirm">
+        <div class="confirm-content">
+            <p>Are you sure you want to delete your account?</p>
+            <button onclick="submitForm()">Yes</button>
+            <button onclick="hideConfirm()">No</button>
+        </div>
+    </div>
     <form action="/settings" method="POST">
         <div id="userInfo">
             <div onclick="hideUserInfo()" class="loginAndAvatar">
@@ -83,8 +91,8 @@
             <button type="submit" class="changeSettingsBtn">Change settings</button>
         </div>
         </form>
-        <form action="/delete" method="POST">
-            <button type="submit" class="changeSettingsBtn">DELETE ACCOUNT</button>
+        <form action="/delete" method="POST" id="deleteAccountForm">
+            <button type="submit" class="changeSettingsBtn" onclick="event.preventDefault(); showConfirm();">DELETE ACCOUNT</button>
         </form>
         <div>
             <button onclick="window.location.assign('/logout')" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
