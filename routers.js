@@ -15,6 +15,8 @@ router.use("/signIn", db.login);
 router.post("/delete", db.delete);
 router.use("/win-page", db.win);
 router.use("/lose-page", db.lose);
-router.use("/", db.index);
-
+router.get("/", db.index);
+router.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '/views/404.html'));
+});
 module.exports = router;

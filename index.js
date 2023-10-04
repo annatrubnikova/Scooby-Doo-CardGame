@@ -61,7 +61,6 @@ const cards = [
 ];
 
 function generateDeck() {
-  // Генерація 10 випадкових карт
   let deck = [];
   while (deck.length < 10) {
     const card = cards[Math.floor(Math.random() * cards.length)];
@@ -97,17 +96,17 @@ function startTurnTimer(user1, user2, activeUser) {
   inactiveUser.emit('your-move', false);
 
   activeUser.turnTimer = setTimeout(() => {
-      activeUser.missedTurns++; 
-
-      if (activeUser.missedTurns >= 2) {
-          activeUser.emit('game-over', { result: 'lose' });
-          inactiveUser.emit('game-over', { result: 'win' });
-
-          leaveChatRoom(activeUser);
-          leaveChatRoom(inactiveUser);
-      } else {
-          startTurnTimer(user1, user2, inactiveUser); // Передаємо хід іншому гравцю
-      }
+    activeUser.missedTurns++; 
+    
+    if (activeUser.missedTurns >= 2) {
+      activeUser.emit('game-over', { result: 'lose' });
+      inactiveUser.emit('game-over', { result: 'win' });
+      
+      leaveChatRoom(activeUser);
+      leaveChatRoom(inactiveUser);
+    } else {
+      startTurnTimer(user1, user2, inactiveUser); // Передаємо хід іншому гравцю
+    }
   }, timeLimit);
 }
 
@@ -118,8 +117,8 @@ io.on('connection', (sock) => {
   console.log('Someone connected');
   sock.inChatRoom = false; 
   sock.missedTurns = 0;
+  
   sock.on('search-chat-partner', () => {
-    // Перевірка, чи користувач уже в черзі
     if (sock.inChatRoom) {
       console.log(`User ${sock.id} is already in a chat room`);
       return;
@@ -132,8 +131,18 @@ io.on('connection', (sock) => {
     
     waitingQueue.push(sock);
 
+    sock.redirectTimer = setTimeout(() => {
+      console.log("Inside the redirect timer logic for user", sock.id);
+      const index = waitingQueue.indexOf(sock);
+      if (index > -1) {
+        waitingQueue.splice(index, 1); 
+        sock.emit('game-over', {result: 'goodbye'});
+      }
+    }, 30000);
+
     while (waitingQueue.length >= 2) {
       const user1 = waitingQueue.shift();
+      clearTimeout(user1.redirectTimer);
 
       let user2;
       for (let i = 0; i < waitingQueue.length; i++) {
@@ -159,6 +168,7 @@ io.on('connection', (sock) => {
       user1.emit('chat-room-assigned', roomId);
       user2.emit('chat-room-assigned', roomId);
 
+      clearTimeout(user2.redirectTimer);
       console.log(`Users ${user1.id} (${user1.login}) and ${user2.id} (${user2.login}) are paired in room ${roomId}`);
 
 
@@ -222,23 +232,23 @@ io.on('connection', (sock) => {
             leaveChatRoom(activeUser);
             leaveChatRoom(opponentUser);
             return;
-        }
+          }
          
-        if (activeUser.health <= 0) {
-          activeUser.emit('game-over', { result: 'lose' });
-          opponentUser.emit('game-over', { result: 'win' });
-          leaveChatRoom(activeUser);
-          leaveChatRoom(opponentUser);
-          return;
-      }
-      if (areResourcesExhausted(activeUser) && areResourcesExhausted(opponentUser)) {
-        console.log("HIIIIIIIIII");
-        activeUser.emit('game-over', { result: 'draw' });
-        opponentUser.emit('game-over', { result: 'draw' });
-        leaveChatRoom(activeUser);
-        leaveChatRoom(opponentUser);
-        return;
-      }
+          if (activeUser.health <= 0) {
+            activeUser.emit('game-over', { result: 'lose' });
+            opponentUser.emit('game-over', { result: 'win' });
+            leaveChatRoom(activeUser);
+            leaveChatRoom(opponentUser);
+            return;
+          }
+
+          if (areResourcesExhausted(activeUser) && areResourcesExhausted(opponentUser)) {
+            activeUser.emit('game-over', { result: 'draw' });
+            opponentUser.emit('game-over', { result: 'draw' });
+            leaveChatRoom(activeUser);
+            leaveChatRoom(opponentUser);
+            return;
+          }
           games[roomId].user1 = { ...activeUser };
           games[roomId].user2 = { ...opponentUser };
 
@@ -255,81 +265,81 @@ io.on('connection', (sock) => {
   sock.on('player-surrendered', () => {
     const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
     if (gameRoom) {
-        const game = games[gameRoom];
-        let opponentSocket = '';
+      const game = games[gameRoom];
+      let opponentSocket = '';
+      
+      if (game.user1.id === sock.id) {
+        opponentSocket = io.sockets.sockets.get(game.user2.id);
+      } else {
+        opponentSocket = io.sockets.sockets.get(game.user1.id);
+      }
+      
+      sock.emit('game-over', { result: 'lose' });
 
-        if (game.user1.id === sock.id) {
-            opponentSocket = io.sockets.sockets.get(game.user2.id);
-        } else {
-            opponentSocket = io.sockets.sockets.get(game.user1.id);
-        }
-        sock.emit('game-over', { result: 'lose' });
+      if (opponentSocket && opponentSocket.connected) {
+        opponentSocket.emit('game-over', { result: 'win' });
+      }
 
-        if (opponentSocket && opponentSocket.connected) {
-            opponentSocket.emit('game-over', { result: 'win' });
-        }
-
-        leaveChatRoom(sock);
-        leaveChatRoom(opponentSocket);
+      leaveChatRoom(sock);
+      leaveChatRoom(opponentSocket);
     }
-});
+  });
 
   sock.on('send-private-message', (roomId, message) => {
     io.to(roomId).emit('private-message', {
-        senderId: sock.id,
-        senderLogin: sock.login,
-        text: message
+      senderId: sock.id,
+      senderLogin: sock.login,
+      text: message
     });
-});
+  });
 
-sock.on('register-login', (data) => {
-  console.log(`User ${sock.id} set login as: ${data.login}`);
-  console.log(`User ${sock.id} set avatar as: ${data.avatar}`);
-  sock.login = data.login;
-  sock.avatar = data.avatar;
-});
+  sock.on('register-login', (data) => {
+    console.log(`User ${sock.id} set login as: ${data.login}`);
+    console.log(`User ${sock.id} set avatar as: ${data.avatar}`);
+    sock.login = data.login;
+    sock.avatar = data.avatar;
+  });
 
-sock.on('disconnect', () => {
-  handleUserDisconnect(sock);
-});
+  sock.on('disconnect', () => {
+    handleUserDisconnect(sock);
+  });
 
-function handleUserDisconnect(sock) {
-  const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
-  if (gameRoom) {
-    const game = games[gameRoom];
-    let opponentSocket = '';
+  function handleUserDisconnect(sock) {
+    const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
+    if (gameRoom) {
+      const game = games[gameRoom];
+      let opponentSocket = '';
 
-    if (game.user1.id === sock.id) {
-      opponentSocket = io.sockets.sockets.get(game.user2.id);
-    } else {
-      opponentSocket = io.sockets.sockets.get(game.user1.id);
-    }
+      if (game.user1.id === sock.id) {
+        opponentSocket = io.sockets.sockets.get(game.user2.id);
+      } else {
+        opponentSocket = io.sockets.sockets.get(game.user1.id);
+      }
     
-    if (opponentSocket && opponentSocket.connected) {
-      opponentSocket.emit('game-over', { result: 'win' });
-    } 
+      if (opponentSocket && opponentSocket.connected) {
+        opponentSocket.emit('game-over', { result: 'win' });
+      } 
 
-    leaveChatRoom(opponentSocket);
-    leaveChatRoom(sock);
-    delete games[gameRoom];
-  } else {
-    const index = waitingQueue.indexOf(sock);
-    if (index > -1) {
-      waitingQueue.splice(index, 1);
-      console.log(`User ${sock.id} left the waiting queue`);
-      sock.emit('game-over', 'goodbye');
+      leaveChatRoom(opponentSocket);
+      leaveChatRoom(sock);
+      delete games[gameRoom];
+    } else {
+      const index = waitingQueue.indexOf(sock);
+      if (index > -1) {
+        waitingQueue.splice(index, 1);
+        console.log(`User ${sock.id} left the waiting queue`);
+        sock.emit('game-over', 'goodbye');
+      }
     }
-  }
-}
-  
+  } 
 });
 
 function leaveChatRoom(sock) {
   const rooms = Object.keys(sock.rooms);
   rooms.forEach(roomId => {
-      if (roomId !== sock.id) {  
-          sock.leave(roomId);
-      }
+    if (roomId !== sock.id) {  
+      sock.leave(roomId);
+    }
   });
   sock.inChatRoom = false;
   const gameRoom = Object.keys(games).find(roomId => games[roomId].user1.id === sock.id || games[roomId].user2.id === sock.id);
