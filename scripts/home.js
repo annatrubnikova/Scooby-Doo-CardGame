@@ -13,7 +13,6 @@ function showRules() {
 
 let userLogin = document.querySelector('.loginText').innerText;
 let imageElement = document.querySelector('.avatarValue').src;
-console.log(imageElement);
 localStorage.setItem('userLogin', userLogin);
 localStorage.setItem('userAvatar', imageElement);
 function logOut() {
@@ -22,7 +21,6 @@ function logOut() {
 }
 
 let isExit = localStorage.getItem('isExit');
-console.log(isExit);
 if (isExit == 'true') {  
     localStorage.removeItem('isExit');
     window.location.href = '/lose-page';

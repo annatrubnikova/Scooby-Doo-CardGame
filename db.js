@@ -71,7 +71,6 @@ exports.addUser = async function (req, res){
         res.send(render('signUp', {error: valid.error}));
     } else {
         if(req.body.password.length < 8 || !/[a-zA-Z]/.test(req.body.password) || !/\d/.test(req.body.password)) {
-          console.log("error");
           res.send(render('signUp', {error: "Passwords must contains letters and numbers. At least 8 chars."}));  //fix
           return;
         }
@@ -190,7 +189,6 @@ exports.settings = async function(request, response) {
     else {
       const user = new User();
       const isPasswordValid = await crypt.compare(request.body.passwordCheck, request.session.user.password);
-      console.log(isPasswordValid);
       if (!isPasswordValid) {
         response.send(render('settings', {
           login: request.session.user.login, 
@@ -309,7 +307,6 @@ exports.delete = async function(request, res) {
   }
   else {
     const user = new User();
-    console.log(request.session.user.id);
     await user.deleteUser(request.session.user.id);
     res.redirect('/logout');
   }
