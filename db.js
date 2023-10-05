@@ -68,8 +68,13 @@ async function sendEmail(email, pass) {
 exports.addUser = async function (req, res){
     let valid = await validate(req.body);
     if(!valid.status) {
-        res.send(render('signUp', `Error!!! ${valid.error}`));  fix
+        res.send(render('signUp', {error: valid.error}));
     } else {
+        if(req.body.password.length < 8 || !/[a-zA-Z]/.test(req.body.password) || !/\d/.test(req.body.password)) {
+          console.log("error");
+          res.send(render('signUp', {error: "Passwords must contains letters and numbers. At least 8 chars."}));  //fix
+          return;
+        }
         const user = new User();
         const hashedPass = await crypt.hash(req.body.password, 8);
         await user.save({

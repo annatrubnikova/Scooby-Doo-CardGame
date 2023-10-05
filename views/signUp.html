@@ -14,7 +14,7 @@
     <div class="mainSection">
         <h2>The Name Game</h2>
         <div class="signForm signUpForm">
-            
+            <div id="hidden_if_empty">#error#</div>
             <div class="column">
                 <div class="loginInput">
                     <span>Login</span>
@@ -83,6 +83,10 @@
               error.parentNode.removeChild(error);
           }
         }
+        window.onload = function() {
+            let hidden_if_empty = document.getElementById('hidden_if_empty');
+            hidden_if_empty.style.display = (hidden_if_empty.innerHTML.trim() === '#error#') ? 'none' : 'block';
+        };
       </script>
 </body>
 </html>
