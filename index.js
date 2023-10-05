@@ -105,7 +105,7 @@ function startTurnTimer(user1, user2, activeUser) {
       leaveChatRoom(activeUser);
       leaveChatRoom(inactiveUser);
     } else {
-      startTurnTimer(user1, user2, inactiveUser); // Передаємо хід іншому гравцю
+      startTurnTimer(user1, user2, inactiveUser); 
     }
   }, timeLimit);
 }
@@ -228,7 +228,9 @@ function startTurnTimerWithComputer(playerSocket) {
         playerSocket.emit('game-over', { result: 'lose' });
         return;
       }
-      handleComputerMove(playerSocket);
+      //handleComputerMove(playerSocket);
+      playerSocket.isPlayerTurn = !playerSocket.isPlayerTurn;
+      startTurnTimerWithComputer(playerSocket);
     }, 15000);  
   } else {
     setTimeout(() => {
@@ -238,7 +240,7 @@ function startTurnTimerWithComputer(playerSocket) {
 }
 
 function getRandomDelay() {
-  return Math.floor(Math.random() * 5000) + 2000; // Затримка від 2 до 7 секунд
+  return Math.floor(Math.random() * 5000) + 2000; 
 }
 
 function removeCardFromDeckComputer(playerSocket, cardId, isComputer = false) {
