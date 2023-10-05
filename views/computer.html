@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>card game</title>
+    <link rel="icon" href="img/favicon.png">
+    <link rel="stylesheet" href="zhopa.css">
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" href="logo.png">
+    <script src="https://kit.fontawesome.com/63fb3be0e9.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <!-- ЧАТ -->
+    <!-- <button onclick="searchChatPartner()">Знайти співрозмовника</button> -->
+    <!-- <div id="chat-room" style="display: none;">
+        <ul id="chat-messages"></ul>
+        <input type="text" id="message-input">
+        <button onclick="sendPrivateMessage()">Відправити</button>
+    </div> -->
+
+    <!-- СТІЛ ДЛЯ ГРИ В КАРТИ  -->
+
+    <div id="searchingModal" class="modal">
+        <div class="modal-content">
+          <p id="modalText">The search for a player is carried out...</p>
+        </div>
+    </div>
+
+    <div id="game-board">
+      <div class="health-info">
+        <div id="coins-display"></div>
+        <!-- Аватра мій -->
+        <div class="my-avatar"><div id="progress-container1">
+          <div id="progress-bar1"></div>
+      </div></div>
+        <div class="my-health" id="player-health"></div>
+        <!-- аватар опонента -->
+        <div class="opp-avatar"><div id="progress-container2">
+          <div id="progress-bar2"></div>
+      </div></div>
+        <div class="opp-health" id="opponent-health"></div>
+      </div>
+      <div id="opponent-cards" class="card-row">
+          <!-- Тут будуть карти опонента (тильний бік) -->
+      </div>
+      <div id="turn-info"></div>
+      <div id="ggggg">
+        <!-- opoent card -->
+      </div>
+      <div id="game-table">
+          <!-- my card -->
+      </div>
+      <div id="draw-button"> 
+        <!-- <button onclick="logOut()" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button> -->
+      </div>
+      <div id="player-cards" class="card-row">
+          <!-- Тут будуть карти гравця -->
+      </div>
+    </div>
+
+    <audio id="audioPlayer" src="flipcard.mp3"></audio>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="computer.js"></script>
+  </body>
+</html>
