@@ -110,14 +110,22 @@ socket.on('update-health', (data) => {
 
 socket.on('your-move', (isYourMove) => {
   const turnInfo = document.getElementById('turn-info');
+  const drawButton = document.getElementById('draw-button');
+
   if (isYourMove) {
     turnInfo.textContent = 'Your move!';
     enableCardClicks();
     runtimer("progress-bar1", "progress-bar2");
+    drawButton.style.pointerEvents = "auto";
+    drawButton.style.cursor = "pointer";
+
   } else {
     turnInfo.textContent = `Computer's move`; 
     disableCardClicks();
     runtimer("progress-bar2", "progress-bar1");
+
+    drawButton.style.pointerEvents = "none";
+    drawButton.style.cursor = "not-allowed";
   }
 });
 
