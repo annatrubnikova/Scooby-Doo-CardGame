@@ -141,3 +141,47 @@ body:nth-child(2) {
 .audioBtn {
     padding: 1px 22px;
 }
+
+#rulesPopup {
+    position: absolute;
+    z-index: 10;
+    height: 400px;
+    width: 400px;
+    top: 10%;
+    right: 35%;
+    background-color: white;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: start;
+    box-shadow: 0px 9px 41px 3px rgba(162,87,248,0.7);
+    padding: 20px;
+  }
+
+  .hiddenPopup {
+    display: none!important;
+  }
+
+  #rulesPopup h1 {
+    color: #a257f8;
+  }
+
+  #rulesPopup ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  #rulesPopup li {
+    text-align: left;
+    font-size: 20px;
+    line-height: 32px;
+    margin-bottom: 10px;
+  }
+
+  #rulesPopup li i {
+    font-size: 32px;
+    color: #a257f8;
+    vertical-align: middle;
+    margin-right: 8px;
+  }

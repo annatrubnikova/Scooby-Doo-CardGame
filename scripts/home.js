@@ -6,6 +6,11 @@ function hideUserInfo () {
     document.getElementById("userInfo").style.display='none';
 }
 
+function showRules() {
+    document.getElementById("rulesPopup").classList.toggle('hiddenPopup');
+    document.getElementById('rulesBtn').style.backgroundColor = document.getElementById('rulesBtn').style.backgroundColor == "rgb(162, 87, 248)" ? "rgb(90, 0, 107)" : "rgb(162, 87, 248)";
+}
+
 let userLogin = document.querySelector('.loginText').innerText;
 let imageElement = document.querySelector('.avatarValue').src;
 console.log(imageElement);

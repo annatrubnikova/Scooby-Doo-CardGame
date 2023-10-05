@@ -33,6 +33,7 @@
     <div class="mainSection menuSection">
         <h4>Scooby</h4>
         <div class="home-menu">
+            <button onclick=showRules() type="submit" id="rulesBtn" class="settingBtn" style="background-color: rgb(162, 87, 248)"><i class="fa-solid fa-gamepad"></i></button>
             <button onclick=stopMusic() type="submit" id="btnvolume" class="audioBtn"><i id="volume" class="fa-solid fa-volume-low"></i></button>
             <button onclick="window.location.assign('/stats')" type="submit" class="statBtn"><i class="fa-solid fa-chart-line"></i></button>
             <button onclick="window.location.assign('/settings')" type="submit" class="settingBtn"><i class="fa-solid fa-gear"></i></button>
@@ -45,6 +46,16 @@
     <button onclick="window.location.assign('/scooby_doo')" type="submit" class="startGameBtn gameWithBot"><i class="fa-solid fa-play"></i> Game with bot</button>
     <div>
         <button onclick="logOut()" type="submit" class="logOutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+
+    <div id="rulesPopup" class="hiddenPopup">
+        <h1>Rules</h1>
+        <ul>
+            <li><i class="fa-solid fa-dice-one"></i> At the beggining you have 20 hp, 10 cards and random amount of coins.</li>
+            <li><i class="fa-solid fa-dice-two"></i> Your purpose is to leave an opponent without health.</li>
+            <li><i class="fa-solid fa-dice-three"></i> Each card have information about itself on it: attack, defense and cost.</li>
+            <li><i class="fa-solid fa-dice-four"></i> Defense only works when your hp is lower or equal to 5.</li>
+        </ul>
     </div>
     
     <audio id="audio" src="Scooby-Doo.mp3" autoplay></audio>
