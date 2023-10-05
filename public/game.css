@@ -264,6 +264,9 @@ input {
 
 
 #draw-button {
+  cursor: not-allowed;
+  pointer-events: none;
+
   position: absolute;
   bottom: 200px;
   left: 30px;
