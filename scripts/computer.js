@@ -165,7 +165,7 @@ socket.on('game-over', (data) => {
     setTimeout(() => {
       document.querySelector('.modal').style.display = 'none';
       redirectToPage();
-    }, 10000);
+    }, 7000);
   }
 
   const redirectToPage = () => {
@@ -176,19 +176,29 @@ socket.on('game-over', (data) => {
     } else if (data.result == 'draw') {
         window.location.href = '/home';
     }}
-  
+  document.getElementById("progress-container1").style.display = "none";
+  document.getElementById("progress-container2").style.display = "none";
   if (data.result === 'win') {
     const oppAvatar = document.querySelector('.opp-avatar img');
     document.querySelector('.opp-health').textContent = '';
+    const winPlayer = document.getElementById('winPlayer');
+    winPlayer.volume = 0.1;
+    winPlayer.play();
     if (oppAvatar) oppAvatar.style.visibility = 'hidden';
     showModal('You won!');
   } else if (data.result == 'lose') {
     const myAvatar = document.querySelector('.my-avatar img');
     document.querySelector('.my-health').textContent = '';
     document.getElementById('coins-display').textContent = '';
+    const losePlayer = document.getElementById('losePlayer');
+    losePlayer.volume = 0.1;
+    losePlayer.play();
     if (myAvatar) myAvatar.style.visibility = 'hidden';
     showModal('You lost. Try another game!');
   }  else if (data.result == 'draw') {
+    const winPlayer = document.getElementById('winPlayer');
+    winPlayer.volume = 0.1;
+    winPlayer.play();
     showModal('A draw is declared.');
 }
 });
