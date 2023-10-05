@@ -281,6 +281,13 @@ exports.chatPage = async function(req, res) {
   else res.sendFile(__dirname + '/views/chat.html')
 }
 
+exports.gamePage = async function(req, res) {
+  if(!req.session.user) {
+    res.redirect('/signIn');
+  }
+  else res.sendFile(__dirname + '/views/computer.html')
+}
+
 exports.delete = async function(request, res) {
   if(!request.session.user) {
     res.redirect('/signIn');

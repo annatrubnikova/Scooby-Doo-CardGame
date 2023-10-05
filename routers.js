@@ -4,6 +4,7 @@ const db = require('./db');
 const path = require('path');
 
 router.get('/room_chat', db.chatPage);
+router.get('/scooby_doo', db.gamePage);
 router.post("/create", db.addUser);
 router.post("/validate", db.addUser);
 router.use("/home", db.home);
