@@ -50,6 +50,7 @@ body:nth-child(2) {
     line-height: 64px;
     border-radius: 50px;
     padding: 1px 40px;
+    margin-right: 40px;
     margin-top: 200px;
     cursor: pointer;
     transform: scale(1);
