@@ -57,6 +57,11 @@ body:nth-child(2) {
 	animation: pulse 2s infinite;
 }
 
+.gameWithBot {
+    background-color: white;
+    color: #a257f8;
+}
+
 @keyframes pulse {
 	0% {
 		transform: scale(0.95);

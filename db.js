@@ -235,6 +235,16 @@ exports.settings = async function(request, response) {
           });
         }
         if(request.body.password) {
+          if(request.body.password.length < 8 || !/[a-zA-Z]/.test(request.body.password) || !/\d/.test(request.body.password)) {
+            response.send(render('settings', {
+              login: request.session.user.login, 
+              fullname: request.session.user.full_name, 
+              email: request.session.user.email, 
+              avatar: request.session.user.avatar,
+              error: 'Passwords must contains letters and numbers. At least 8 chars.'
+            }))
+            return;
+          }
           const hashedPass = await crypt.hash(request.body.password, 8);
           await user.save({
             id: request.session.user.id,

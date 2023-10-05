@@ -29,14 +29,14 @@ function stopMusic() {
     let volume = document.getElementById("volume");
     let btnvolume = document.getElementById("btnvolume");
     
-    if(audio.volume == 0.01) {
+    if(audio.volume == 0.09) {
          audio.volume = 0;
          btnvolume.classList.remove("audioBtn");
          volume.classList.remove('fa-volume-low');
          volume.classList.add('fa-volume-xmark');
     }
     else {
-        audio.volume = 0.01;
+        audio.volume = 0.09;
         btnvolume.classList.add("audioBtn");
         volume.classList.add('fa-volume-low');
         volume.classList.remove('fa-volume-xmark');
@@ -44,4 +44,4 @@ function stopMusic() {
 }
 
 let audio = document.getElementById("audio");
-audio.volume = 0.01;
+audio.volume = 0.09;
