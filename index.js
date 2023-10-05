@@ -98,7 +98,7 @@ function startTurnTimer(user1, user2, activeUser) {
   activeUser.turnTimer = setTimeout(() => {
     activeUser.missedTurns++; 
     
-    if (activeUser.missedTurns >= 2) {
+    if (activeUser.missedTurns == 2) {
       activeUser.emit('game-over', { result: 'lose' });
       inactiveUser.emit('game-over', { result: 'win' });
       
@@ -110,156 +110,311 @@ function startTurnTimer(user1, user2, activeUser) {
   }, timeLimit);
 }
 
+// Computer
+function startGameWithComputer(playerSocket) {
+  playerSocket.gameOver = false;
+  playerSocket.skippedTurns = 0;
+
+  const computerDeck = generateDeck();
+  const playerDeck = generateDeck();
+
+  playerSocket.emit('receive-deck', playerDeck);
+  playerSocket.emit('receive-coins', countCoinsInDeck(playerDeck));
+  playerSocket.emit('opponent-info', { login: 'Computer', avatar: 'path_to_computer_avatar.png' });
+
+  playerSocket.deck = playerDeck;
+  playerSocket.computerDeck = computerDeck;
+  playerSocket.computerHealth = 20;
+  playerSocket.health = 20;
+  playerSocket.isPlayerTurn = false;
+
+  playerSocket.on('draw-playered', () => {
+    playerSocket.emit('game-over', { result: 'lose' });
+  });
+
+  registerPlayerMoveHandler(playerSocket);
+  startTurnTimerWithComputer(playerSocket);
+}
+
+function registerPlayerMoveHandler(playerSocket) {
+  playerSocket.on('card-selected', (cardId) => {
+    handlePlayerMove(playerSocket, cardId);
+  });
+}
+
+function handlePlayerMove(playerSocket, cardId) {
+  clearTimeout(playerSocket.turnTimer);
+  playerSocket.skippedTurns = 0;
+  const playerCard = getCardById(cardId);
+  playerSocket.emit('your-card-selected', cardId);
+  if (checkForDraw(playerSocket)) {
+    playerSocket.emit('game-over', { result: 'draw' });
+    return;
+  }
+
+  playerSocket.computerHealth -= playerCard.attack;
+  if (playerSocket.health < 5) {
+      playerSocket.health += playerCard.defense;
+  }
+  removeCardFromDeckComputer(playerSocket, cardId);
+
+  playerSocket.emit('update-health', {
+    playerHealth: playerSocket.health,
+    opponentHealth: playerSocket.computerHealth
+  });
+
+  checkEndGameConditions(playerSocket);
+
+  playerSocket.isPlayerTurn = !playerSocket.isPlayerTurn; 
+  startTurnTimerWithComputer(playerSocket);
+}
+
+function handleComputerMove(playerSocket) {
+  if (playerSocket.gameOver) {
+    return; 
+  }
+
+  if (checkForDraw(playerSocket)) {
+    playerSocket.emit('game-over', { result: 'draw' });
+    return;
+  }
+  const computerCard = computerSelectCard(playerSocket.computerDeck);
+
+  playerSocket.health -= computerCard.attack;
+
+  if (playerSocket.computerHealth < 5) {
+    playerSocket.computerHealth += computerCard.defense;
+  }
+  removeCardFromDeckComputer(playerSocket, computerCard.id, true);
+
+  playerSocket.emit('update-health', {
+    playerHealth: playerSocket.health,
+    opponentHealth: playerSocket.computerHealth
+  });
+
+  playerSocket.emit('opponent-card-selected', computerCard);
+  
+  checkEndGameConditions(playerSocket);
+  playerSocket.isPlayerTurn = !playerSocket.isPlayerTurn; 
+  startTurnTimerWithComputer(playerSocket);
+}
+
+
+function checkEndGameConditions(playerSocket) {
+  if (playerSocket.computerHealth <= 0) {
+    playerSocket.gameOver = true;
+    playerSocket.emit('game-over', { result: 'win' });
+    return;
+  } else if (playerSocket.health <= 0) {
+    playerSocket.gameOver = true;
+    playerSocket.emit('game-over', { result: 'lose' });
+    return;
+  }
+}
+
+function startTurnTimerWithComputer(playerSocket) {
+  if (playerSocket.gameOver) {
+    return;
+  }
+
+  playerSocket.emit('your-move', playerSocket.isPlayerTurn);
+
+  if (playerSocket.isPlayerTurn) {
+    playerSocket.turnTimer = setTimeout(() => {
+      playerSocket.skippedTurns++;
+      
+      if (playerSocket.skippedTurns == 2) {
+        playerSocket.gameOver = true;
+        playerSocket.emit('game-over', { result: 'lose' });
+        return;
+      }
+      handleComputerMove(playerSocket);
+    }, 15000);  
+  } else {
+    setTimeout(() => {
+      handleComputerMove(playerSocket);
+    }, getRandomDelay());
+  }
+}
+
+function getRandomDelay() {
+  return Math.floor(Math.random() * 5000) + 2000; // Затримка від 2 до 7 секунд
+}
+
+function removeCardFromDeckComputer(playerSocket, cardId, isComputer = false) {
+  const deck = isComputer ? playerSocket.computerDeck : playerSocket.deck;
+  const index = deck.findIndex(card => card.id == cardId);
+  if (index !== -1) {
+    deck.splice(index, 1);
+  }
+}
+
+function areResourcesExhaustedComputer(deck) {
+  return deck.length == 0 && countCoinsInDeck(deck) == 0;
+}
+function checkForDraw(playerSocket) {
+  if (areResourcesExhaustedComputer(playerSocket.deck) && areResourcesExhaustedComputer(playerSocket.computerDeck)) {
+    return true;
+  }
+  return false;
+}
+
+function computerSelectCard(deck) {
+  return deck[Math.floor(Math.random() * deck.length)];
+}
+
 
 let waitingQueue = [];
 
 io.on('connection', (sock) => {
-  console.log('Someone connected');
   sock.inChatRoom = false; 
   sock.missedTurns = 0;
   
-  sock.on('search-chat-partner', () => {
-    if (sock.inChatRoom) {
-      console.log(`User ${sock.id} is already in a chat room`);
-      return;
-    }
+  sock.on('search-chat-partner', (playWithComputer = false) => {
+    if (playWithComputer) {
+      // Computer
+      startGameWithComputer(sock);
+    } else {
+      if (sock.inChatRoom) {
+        console.log(`User ${sock.id} is already in a chat room`);
+        return;
+      }
 
-    if (waitingQueue.includes(sock)) {
-      console.log(`User ${sock.id} is already in the queue`);
-      return;
-    }
+      if (waitingQueue.includes(sock)) {
+        console.log(`User ${sock.id} is already in the queue`);
+        return;
+      }
     
-    waitingQueue.push(sock);
+      waitingQueue.push(sock);
 
-    sock.redirectTimer = setTimeout(() => {
-      console.log("Inside the redirect timer logic for user", sock.id);
-      const index = waitingQueue.indexOf(sock);
-      if (index > -1) {
-        waitingQueue.splice(index, 1); 
-        sock.emit('game-over', {result: 'goodbye'});
-      }
-    }, 30000);
-
-    while (waitingQueue.length >= 2) {
-      const user1 = waitingQueue.shift();
-      clearTimeout(user1.redirectTimer);
-
-      let user2;
-      for (let i = 0; i < waitingQueue.length; i++) {
-        if (waitingQueue[i].id !== user1.id) {
-          user2 = waitingQueue.splice(i, 1)[0];
-          break;
+      sock.redirectTimer = setTimeout(() => {
+        const index = waitingQueue.indexOf(sock);
+        if (index > -1) {
+          waitingQueue.splice(index, 1); 
+          sock.emit('game-over', {result: 'goodbye'});
         }
-      }
-      
-      if (!user2) break;
+      }, 30000);
 
-      const roomId = `${user1.id}-${user2.id}`;
-      
-      user1.join(roomId);
-      user2.join(roomId);
+      while (waitingQueue.length >= 2) {
+        const user1 = waitingQueue.shift();
+        clearTimeout(user1.redirectTimer);
 
-      user1.health = 20;
-      user2.health = 20;
-
-      user1.inChatRoom = true;
-      user2.inChatRoom = true;
-
-      user1.emit('chat-room-assigned', roomId);
-      user2.emit('chat-room-assigned', roomId);
-
-      clearTimeout(user2.redirectTimer);
-      console.log(`Users ${user1.id} (${user1.login}) and ${user2.id} (${user2.login}) are paired in room ${roomId}`);
-
-
-      const player1Deck = generateDeck();
-      const player2Deck = generateDeck();
-
-      const coinsInPlayer1Deck = countCoinsInDeck(player1Deck);
-      const coinsInPlayer2Deck = countCoinsInDeck(player2Deck);
-
-      user1.emit('opponent-info', { login: user2.login, avatar: user2.avatar });
-      user2.emit('opponent-info', { login: user1.login, avatar: user1.avatar });
-
-      user1.emit('receive-deck', player1Deck);
-      user2.emit('receive-deck', player2Deck);
-
-      user1.emit('receive-coins', coinsInPlayer1Deck);
-      user2.emit('receive-coins', coinsInPlayer2Deck );
-
-      user1.deck = player1Deck;
-      user2.deck = player2Deck;
-
-      const firstMover = Math.random() < 0.5 ? 'user1' : 'user2';
-
-      games[roomId] = {
-        user1: { ...user1, deck: player1Deck, health: 20 },
-        user2: { ...user2, deck: player2Deck, health: 20 },
-        activeUser: firstMover === 'user1' ? user1.id : user2.id
-      };
-
-      if (firstMover === 'user1') {
-        startTurnTimer(user1, user2, user1);
-      } else {
-        startTurnTimer(user1, user2, user2);
-      }
-      
-      const handleCardSelection = (activeUser, opponentUser) => {
-        activeUser.on('card-selected', (cardId) => {
-          let cardSend = getCardById(cardId);
-          clearTimeout(activeUser.turnTimer);
-
-          activeUser.emit('your-card-selected', cardId);
-          opponentUser.emit('opponent-card-selected', cardSend);
-          activeUser.emit('your-move', false);
-          opponentUser.emit('your-move', true);
-      
-          removeCardFromDeck(activeUser, cardId);  
-
-          const card = getCardById(cardId);
-          opponentUser.health -= card.attack;
-          if (activeUser.health < 5) {
-            activeUser.health += card.defense;
+        let user2;
+        for (let i = 0; i < waitingQueue.length; i++) {
+          if (waitingQueue[i].id !== user1.id) {
+            user2 = waitingQueue.splice(i, 1)[0];
+            break;
           }
+        }
+      
+        if (!user2) break;
 
-          activeUser.emit('update-health', { playerHealth: activeUser.health, opponentHealth: opponentUser.health });
-          opponentUser.emit('update-health', { playerHealth: opponentUser.health, opponentHealth: activeUser.health });
+        const roomId = `${user1.id}-${user2.id}`;
+      
+        user1.join(roomId);
+        user2.join(roomId);
+
+        user1.health = 20;
+        user2.health = 20;
+
+        user1.inChatRoom = true;
+        user2.inChatRoom = true;
+
+        user1.emit('chat-room-assigned', roomId);
+        user2.emit('chat-room-assigned', roomId);
+
+        clearTimeout(user2.redirectTimer);
+        console.log(`Users ${user1.id} (${user1.login}) and ${user2.id} (${user2.login}) are paired in room ${roomId}`);
+
+
+        const player1Deck = generateDeck();
+        const player2Deck = generateDeck();
+
+        const coinsInPlayer1Deck = countCoinsInDeck(player1Deck);
+        const coinsInPlayer2Deck = countCoinsInDeck(player2Deck);
+
+        user1.emit('opponent-info', { login: user2.login, avatar: user2.avatar });
+        user2.emit('opponent-info', { login: user1.login, avatar: user1.avatar });
+
+        user1.emit('receive-deck', player1Deck);
+        user2.emit('receive-deck', player2Deck);
+
+        user1.emit('receive-coins', coinsInPlayer1Deck);
+        user2.emit('receive-coins', coinsInPlayer2Deck );
+
+        user1.deck = player1Deck;
+        user2.deck = player2Deck;
+
+        const firstMover = Math.random() < 0.5 ? 'user1' : 'user2';
+
+        games[roomId] = {
+          user1: { ...user1, deck: player1Deck, health: 20 },
+          user2: { ...user2, deck: player2Deck, health: 20 },
+          activeUser: firstMover === 'user1' ? user1.id : user2.id
+        };
+
+        if (firstMover === 'user1') {
+          startTurnTimer(user1, user2, user1);
+        } else {
+          startTurnTimer(user1, user2, user2);
+        }
+      
+        const handleCardSelection = (activeUser, opponentUser) => {
+          activeUser.on('card-selected', (cardId) => {
+            let cardSend = getCardById(cardId);
+            clearTimeout(activeUser.turnTimer);
+
+            activeUser.emit('your-card-selected', cardId);
+            opponentUser.emit('opponent-card-selected', cardSend);
+            activeUser.emit('your-move', false);
+            opponentUser.emit('your-move', true);
+      
+            removeCardFromDeck(activeUser, cardId);  
+
+            const card = getCardById(cardId);
+            opponentUser.health -= card.attack;
+            if (activeUser.health < 5) {
+              activeUser.health += card.defense;
+            }
+
+            activeUser.emit('update-health', { playerHealth: activeUser.health, opponentHealth: opponentUser.health });
+            opponentUser.emit('update-health', { playerHealth: opponentUser.health, opponentHealth: activeUser.health });
           
           
-          if (opponentUser.health <= 0) {
-            activeUser.emit('game-over', { result: 'win' });
-            opponentUser.emit('game-over', { result: 'lose' });
-            leaveChatRoom(activeUser);
-            leaveChatRoom(opponentUser);
-            return;
-          }
+            if (opponentUser.health <= 0) {
+              activeUser.emit('game-over', { result: 'win' });
+              opponentUser.emit('game-over', { result: 'lose' });
+              leaveChatRoom(activeUser);
+              leaveChatRoom(opponentUser);
+              return;
+            }
          
-          if (activeUser.health <= 0) {
-            activeUser.emit('game-over', { result: 'lose' });
-            opponentUser.emit('game-over', { result: 'win' });
-            leaveChatRoom(activeUser);
-            leaveChatRoom(opponentUser);
-            return;
-          }
+            if (activeUser.health <= 0) {
+              activeUser.emit('game-over', { result: 'lose' });
+              opponentUser.emit('game-over', { result: 'win' });
+              leaveChatRoom(activeUser);
+              leaveChatRoom(opponentUser);
+              return;
+            }
 
-          if (areResourcesExhausted(activeUser) && areResourcesExhausted(opponentUser)) {
-            activeUser.emit('game-over', { result: 'draw' });
-            opponentUser.emit('game-over', { result: 'draw' });
-            leaveChatRoom(activeUser);
-            leaveChatRoom(opponentUser);
-            return;
-          }
-          games[roomId].user1 = { ...activeUser };
-          games[roomId].user2 = { ...opponentUser };
+            if (areResourcesExhausted(activeUser) && areResourcesExhausted(opponentUser)) {
+              activeUser.emit('game-over', { result: 'draw' });
+              opponentUser.emit('game-over', { result: 'draw' });
+              leaveChatRoom(activeUser);
+              leaveChatRoom(opponentUser);
+              return;
+            }
+            games[roomId].user1 = { ...activeUser };
+            games[roomId].user2 = { ...opponentUser };
 
-          startTurnTimer(activeUser, opponentUser, opponentUser);
-        });
-      };
+            startTurnTimer(activeUser, opponentUser, opponentUser);
+          });
+        };
       
-      handleCardSelection(user1, user2);
-      handleCardSelection(user2, user1);
+        handleCardSelection(user1, user2);
+        handleCardSelection(user2, user1);
+      }
     }
-  
   });
 
   sock.on('player-surrendered', () => {
@@ -294,8 +449,6 @@ io.on('connection', (sock) => {
   });
 
   sock.on('register-login', (data) => {
-    console.log(`User ${sock.id} set login as: ${data.login}`);
-    console.log(`User ${sock.id} set avatar as: ${data.avatar}`);
     sock.login = data.login;
     sock.avatar = data.avatar;
   });
@@ -327,7 +480,6 @@ io.on('connection', (sock) => {
       const index = waitingQueue.indexOf(sock);
       if (index > -1) {
         waitingQueue.splice(index, 1);
-        console.log(`User ${sock.id} left the waiting queue`);
         sock.emit('game-over', 'goodbye');
       }
     }
