@@ -87,33 +87,12 @@ function removeCardFromDeck(user, cardId) {
   }
 }
 
-function startTurnTimer(user1, user2, activeUser) {
-  const timeLimit = 15000; 
-  const inactiveUser = activeUser === user1 ? user2 : user1;
-  
-  clearTimeout(inactiveUser.turnTimer);
-  activeUser.emit('your-move', true);
-  inactiveUser.emit('your-move', false);
-
-  activeUser.turnTimer = setTimeout(() => {
-    activeUser.missedTurns++; 
-
-    if (activeUser.missedTurns == 2) {
-      activeUser.emit('game-over', { result: 'lose' });
-      inactiveUser.emit('game-over', { result: 'win' });
-
-      leaveChatRoom(activeUser);
-      leaveChatRoom(inactiveUser);
-    } else {
-      startTurnTimer(user1, user2, inactiveUser); 
-    }
-  }, timeLimit);
-}
 
 // Computer
 function startGameWithComputer(playerSocket) {
   playerSocket.gameOver = false;
   playerSocket.skippedTurns = 0;
+  playerSocket.totalTurns = 0;
 
   const computerDeck = generateDeck();
   const playerDeck = generateDeck();
@@ -216,6 +195,13 @@ function startTurnTimerWithComputer(playerSocket) {
   if (playerSocket.gameOver) {
     return;
   }
+  playerSocket.totalTurns++;
+
+  if (playerSocket.totalTurns > 20 && playerSocket.health > 0 && playerSocket.computerHealth > 0 && (playerSocket.deck.length == 0 || playerSocket.computerDeck.length == 0)) {
+    playerSocket.emit('game-over', { result: 'draw' });
+    return;
+  }
+
 
   playerSocket.emit('your-move', playerSocket.isPlayerTurn);
 
@@ -265,6 +251,39 @@ function computerSelectCard(deck) {
   return deck[Math.floor(Math.random() * deck.length)];
 }
 
+function startTurnTimer(user1, user2, activeUser, roomId) {
+  const timeLimit = 15000; 
+  const inactiveUser = activeUser === user1 ? user2 : user1;
+  
+  clearTimeout(inactiveUser.turnTimer);
+  games[roomId].totalTurns++; 
+
+  if (games[roomId].totalTurns > 20 && user1.health > 0 && user2.health > 0 && (user1.deck.length == 0 || user2.deck.length == 0)) {
+    user1.emit('game-over', { result: 'draw' });
+    user2.emit('game-over', { result: 'draw' });
+    leaveChatRoom(user1);
+    leaveChatRoom(user2);
+    return;
+  }
+
+  activeUser.emit('your-move', true);
+  inactiveUser.emit('your-move', false);
+
+  activeUser.turnTimer = setTimeout(() => {
+
+    activeUser.missedTurns++; 
+
+    if (activeUser.missedTurns == 2) {
+      activeUser.emit('game-over', { result: 'lose' });
+      inactiveUser.emit('game-over', { result: 'win' });
+
+      leaveChatRoom(activeUser);
+      leaveChatRoom(inactiveUser);
+    } else {
+      startTurnTimer(user1, user2, inactiveUser, roomId); 
+    }
+  }, timeLimit);
+}
 
 let waitingQueue = [];
 
@@ -352,13 +371,14 @@ io.on('connection', (sock) => {
         games[roomId] = {
           user1: { ...user1, deck: player1Deck, health: 20 },
           user2: { ...user2, deck: player2Deck, health: 20 },
-          activeUser: firstMover === 'user1' ? user1.id : user2.id
+          activeUser: firstMover === 'user1' ? user1.id : user2.id,
+          totalTurns: 0 
         };
 
         if (firstMover === 'user1') {
-          startTurnTimer(user1, user2, user1);
+          startTurnTimer(user1, user2, user1, roomId);
         } else {
-          startTurnTimer(user1, user2, user2);
+          startTurnTimer(user1, user2, user2, roomId);
         }
       
         const handleCardSelection = (activeUser, opponentUser) => {
@@ -411,7 +431,7 @@ io.on('connection', (sock) => {
             games[roomId].user1 = { ...activeUser };
             games[roomId].user2 = { ...opponentUser };
 
-            startTurnTimer(activeUser, opponentUser, opponentUser);
+            startTurnTimer(activeUser, opponentUser, opponentUser, roomId);
           });
         };
       
