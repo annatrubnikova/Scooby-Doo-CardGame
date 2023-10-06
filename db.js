@@ -43,26 +43,20 @@ async function validate(check) {
 }
 
 async function sendEmail(email, pass) {
-    let testAccount = await nodemailer.createTestAccount();
     let transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, 
-        auth: {
-            user: testAccount.user, 
-            pass: testAccount.pass, 
-        },
+      service: 'gmail',
+      auth: {
+        user: 'd52982082@gmail.com',
+        pass: 'gyep hxdj kkfe kmiy'
+      }
     });
     let info = await transporter.sendMail({
-        from: '<atrubnikov@khpi.net>', 
+        from: 'd52982082@gmail.com',
         to: email, 
         subject: "Important! Password reminder.",
-        text: "Your password is: <b>" + pass + "</b>",
-        html: "Your password is: <b>" + pass + "</b>", 
+        text: "SCOOBY TEAM <br> Your password is: <b>" + pass + "</b>",
+        html: "SCOOBY TEAM <br> Your password is: <b>" + pass + "</b>", 
     });
-
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
 
 exports.addUser = async function (req, res){
