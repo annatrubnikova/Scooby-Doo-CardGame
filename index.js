@@ -97,11 +97,11 @@ function startTurnTimer(user1, user2, activeUser) {
 
   activeUser.turnTimer = setTimeout(() => {
     activeUser.missedTurns++; 
-    
+
     if (activeUser.missedTurns == 2) {
       activeUser.emit('game-over', { result: 'lose' });
       inactiveUser.emit('game-over', { result: 'win' });
-      
+
       leaveChatRoom(activeUser);
       leaveChatRoom(inactiveUser);
     } else {
@@ -366,6 +366,8 @@ io.on('connection', (sock) => {
             let cardSend = getCardById(cardId);
             clearTimeout(activeUser.turnTimer);
 
+            activeUser.missedTurns = 0;
+            
             activeUser.emit('your-card-selected', cardId);
             opponentUser.emit('opponent-card-selected', cardSend);
             activeUser.emit('your-move', false);
