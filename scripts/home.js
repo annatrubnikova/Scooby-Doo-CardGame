@@ -20,13 +20,6 @@ function logOut() {
     window.location.assign('/logout');
 }
 
-let isExit = localStorage.getItem('isExit');
-if (isExit == 'true') {  
-    localStorage.removeItem('isExit');
-    window.location.href = '/lose-page';
-    alert('You lost. Try another game!');
-}
-
 function stopMusic() {
     let audio = document.getElementById("audio");
     let volume = document.getElementById("volume");

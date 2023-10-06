@@ -206,9 +206,6 @@ function enableCardClicks() {
   });
 }
 
-
-let exitUser = 0;
-
 socket.on('game-over', (data) => {
   const showModal = (text) => {
     document.getElementById('modalText').textContent = text; 
@@ -231,7 +228,6 @@ socket.on('game-over', (data) => {
   document.getElementById("progress-container1").style.display = "none";
   document.getElementById("progress-container2").style.display = "none";
   if (data.result === 'win') {
-    exitUser = 1;
     const oppAvatar = document.querySelector('.opp-avatar img');
     document.querySelector('.opp-health').textContent = '';
     const winPlayer = document.getElementById('winPlayer');
@@ -240,7 +236,6 @@ socket.on('game-over', (data) => {
     if (oppAvatar) oppAvatar.style.visibility = 'hidden';
     showModal('You won!');
   } else if (data.result == 'lose') {
-    exitUser = 1;
     const myAvatar = document.querySelector('.my-avatar img');
     document.querySelector('.my-health').textContent = '';
     document.getElementById('coins-display').textContent = '';
@@ -250,10 +245,8 @@ socket.on('game-over', (data) => {
     if (myAvatar) myAvatar.style.visibility = 'hidden';
     showModal('You lost. Try another game!');
   } else if (data.result == 'goodbye') {
-    exitUser = 1;
     window.location.href = '/home';
   } else if (data.result == 'draw') {
-    exitUser = 1;
     const winPlayer = document.getElementById('winPlayer');
     winPlayer.volume = 0.1;
     winPlayer.play();
@@ -261,15 +254,6 @@ socket.on('game-over', (data) => {
   }
 });
 
-
-window.addEventListener('beforeunload', function (e) {
-  if (exitUser == 0) { 
-    localStorage.setItem('isExit', 'true');
-    let message = 'Are you sure you want to quit the game?';
-    e.returnValue = message; 
-    return message;
-  }
-});
 
 let textarea = document.getElementById('chatPopupMessages');
 textarea.scrollTop = textarea.scrollHeight;
