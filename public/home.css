@@ -145,7 +145,7 @@ body:nth-child(2) {
 #rulesPopup {
     position: absolute;
     z-index: 10;
-    height: 400px;
+    height: 500px;
     width: 400px;
     top: 10%;
     right: 35%;
