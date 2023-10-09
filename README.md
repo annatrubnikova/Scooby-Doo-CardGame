@@ -69,9 +69,27 @@ npm start
 | <img src="https://i.imgur.com/6bSyotS.png">  | <img src="https://i.imgur.com/0wwzHkX.png">|
 
 All cards designed by Polina Markova.
-## Features
-
-- HTML5
-- CSS3
-- JavaScript (Node JS)
+<h2 align="center">Features:
+    <p> </p>
+    <p align="center">
+        <a href="https://en.wikipedia.org/wiki/CSS" target="_blank">    
+            <img src="https://github.com/CamyrauBTanke/CamyrauBTanke/blob/main/img/skills/css.png" height="65px">
+        </a>
+        <a href="https://en.wikipedia.org/wiki/HTML" target="_blank">    
+            <img src="https://github.com/CamyrauBTanke/CamyrauBTanke/blob/main/img/skills/html.png" height="65px">
+        </a>
+        <a href="https://en.wikipedia.org/wiki/MySQL" target="_blank"> 
+            <img src="https://github.com/CamyrauBTanke/CamyrauBTanke/blob/main/img/skills/mysql.png" height="80px">
+        </a>
+        <a href="https://en.wikipedia.org/wiki/JavaScript" target="_blank"> 
+            <img src="https://github.com/CamyrauBTanke/CamyrauBTanke/blob/main/img/skills/js.png" height="60px">
+        </a>
+        <a href="https://nodejs.org/en/about/" target="_blank"> 
+            <img src="https://github.com/CamyrauBTanke/CamyrauBTanke/blob/main/img/skills/nodejs.png" height="60px">
+        </a>
+        <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">
+            <img src="https://github.com/CamyrauBTanke/CamyrauBTanke/blob/main/img/skills/json.png" height="60px">
+        </a>
+    </p>
+</h2>
 
